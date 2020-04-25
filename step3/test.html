@@ -154,7 +154,7 @@ let validate = function(form, noticeClass) {
 }
 
 // 控件失去焦点时触发
-
+// todo: 添加验证成功的处理
 let handleSingleErr = function( name, message ) {
 
     var ele = document.getElementById(`${name}-span`);
@@ -188,14 +188,13 @@ let blurValidate = function( inputName ) {
             console.log(msg);
             handleSingleErr (inputName, msg);
             return;
-        }
+        } 
         // 解析函数规则
         var parts = regexs.method.exec(rules[1]);
         let method, args;
         if(parts) {
             method = parts[1];
             args = parts[2].split(',');
-            console.log(method, args);
             let hasMethod = _testHook.hasOwnProperty(method);
             if( hasMethod && !_testHook[method]( document.getElementById(args[0]).value, field) ) {
                 console.log(msg);
