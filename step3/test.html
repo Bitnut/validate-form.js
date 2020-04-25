@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form method="post" id="example_form" onsubmit="return myfun('example_form')">
+        <div><label for="email">邮箱验证</label><input type="text" id="email" name="email" onblur="blurValidate('email')"></div>
+        <span style="color:red;font-size: 12px;display: none;" class="tishi" id = "email-span">  
+            必须两位字符及以上  
+        </span>
+        <div><label for="password">密码</label><input type="text" id="password" name="password" onblur="blurValidate('password')"></div>
+        <span style="color:red;font-size: 12px;display: none;" class="tishi" id = "password-span">  
+            密码格式不正确  
+        </span>
+        <div><label for="repassword">重复密码</label><input type="text" id="repassword" name="repassword" onblur="blurValidate('repassword')"></div>
+        <span style="color:red;font-size: 12px;display: none;" class="tishi" id = "repassword-span"> 
+            两次密码输入需一致  
+        </span>
+        <button type="button" id = "newbutton" onclick="myfun('example_form')">提交</button>
+    </form>  
+</body>
+<script type="text/javascript">
+
+const regexs = {
+
+    method: /^(.+?)\((.+)\)$/,
+    email:/^(?:\w+\.?)*\w+@(?:\w+\.)+\w+$/,
+    password: /^[0-9a-zA-Z]{6,30}$/,
+
+}
+
+const notices = {
+    
+    email: "您还没有输入登录邮箱，无法登录！",
+    password: "请输入合法的密码!长度应在6-30位包含数字和字母。",
+    repassword: "两次密码输入需一致",
+    success: "成功"
+
+}
+
+const customRules = [
+
+    {
+        name: 'email',
+        msg: '请输入正确的邮件地址',
+        rule: 'required|is_email',
+    },
+    {
+        name: 'password',
+        msg: '请输入合法的密码!长度应在6-30位包含数字和字母。',
+        rule: 'required|is_password',
+    },
+    {
+        name: 'repassword',
+        msg: '两次密码输入需一致',
+        rule: 'required|equal(password)',
+    }
+
+]
+
+const _testHook = {
+    
+    is_email: function(field){return regexs.email.test( field );},
+    is_password: function(field){return regexs.password.test( field );},
+    required: function(field){return field !== '' && field !== null},
+    equal: function (field, newField) {
+        return field === newField;
+    }
+
+}
+
+let clear = function( noticeClass ){
+
+    console.log('clearing notice');
+    for( let i = 0; i < document.getElementsByClassName(noticeClass).length; i++) {
+        document.getElementsByClassName(noticeClass)[i].style.display = 'none';
+    }
+
+}
+
+let log = function (type) {
+
+    console.log( notices[type] );
+
+}
+
+
+// 提交表单时触发
+let handleError = function(err) {
+
+    console.log( 'handling error msg' );
+
+    if(err.length === 0) {
+
+        console.log('err length is 0');
+        return;
+
+    } else {
+
+        for(let a in err) {
+
+            console.log(a, err[a]);
+            var ele = document.getElementById(`${a}-span`);
+            ele.innerHTML = err[a];
+            ele.style.display = 'inline';
+            
+        }
+        return;
+
+    }
+    return;
+
+}
+
+let validate = function(form, noticeClass) {
+
+    clear(noticeClass);
+    let error = {};
+
+    for(let i = 0; i < form.length - 1; i++) {
+        if(form[i].name === 'repassword') {
+            if( form['repassword'].value === form['password'].value) {
+
+                log('success');
+
+            } else {
+
+                log('repassword');
+                error.push(2);
+                
+            }
+            continue;
+
+        }
+        if (regexs[form[i].name].test(form[i].value)) {
+
+            log('success');
+
+        } else{
+
+            let name = form[i].name;
+            log(name);
+            error[name] = notices[name];
+
+        }
+
+    }
+
+    handleError(error, noticeClass);
+    
+}
+
+// 控件失去焦点时触发
+
+let handleSingleErr = function( name, message ) {
+
+    var ele = document.getElementById(`${name}-span`);
+    ele.innerHTML = message;
+    ele.style.display = 'inline';
+
+}
+
+let blurValidate = function( inputName ) {
+    let flag = false;
+    let rule;
+    for( let item of customRules) {
+        if(item.name === inputName) {
+            flag = true;
+            rule = item;
+            break;
+        }
+    }
+    if(flag) {
+         
+        let msg = rule.msg;
+        let rules = rule.rule.split('|');
+        let field = document.getElementById(inputName).value;
+        if(rules.indexOf('required') !== -1 && field === '') {
+            console.log('必填');
+            handleSingleErr (inputName, '必填!');
+            return;
+        }
+        let index = _testHook.hasOwnProperty(rules[1]);
+        if( index && !_testHook[rules[1]](field) ) {
+            console.log(msg);
+            handleSingleErr (inputName, msg);
+            return;
+        }
+        // 解析函数规则
+        var parts = regexs.method.exec(rules[1]);
+        let method, args;
+        if(parts) {
+            method = parts[1];
+            args = parts[2].split(',');
+            console.log(method, args);
+            let hasMethod = _testHook.hasOwnProperty(method);
+            if( hasMethod && !_testHook[method]( document.getElementById(args[0]).value, field) ) {
+                console.log(msg);
+                handleSingleErr (inputName, msg);
+                return;
+            }
+        }
+
+    } else {
+
+        console.log('符合条件的规则不存在，请检查传参');
+
+    }
+
+}
+
+
+// 私人处理
+let myfun = function (id) {
+    let form = document.forms[id];
+    // console.log(form);
+    console.log('hi!');
+    if( validate(form, 'tishi') ) return true;
+    else return false;
+}
+</script>
+</html>
