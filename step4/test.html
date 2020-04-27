@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./validator.js"></script>
+</head>
+<body>
+    <form method="post" id="example_form"  onsubmit="return myfun('example_form')">
+        <div><label for="email">邮箱验证</label><input type="text" id="email-1" name="email"></div>
+        <span style="color:red;font-size: 12px;display: none;" class="tishi" id = "email-1-span">  
+            必须两位字符及以上  
+        </span>
+        <div><label for="password">密码</label><input type="text" id="password" name="password-1"></div>
+        <span style="color:red;font-size: 12px;display: none;" class="tishi" name = "password-1-span">  
+            密码格式不正确  
+        </span>
+        <div><label for="repassword">重复密码</label><input type="text" id="repassword-1" name="repassword"></div>
+        <span style="color:red;font-size: 12px;display: none;" class="tishi" id = "repassword-1-span"> 
+            两次密码输入需一致  
+        </span>
+        <button type="button" id = "newbutton" onclick="myfun('example_form')">提交</button>
+    </form>  
+</body>
+<script type="text/javascript">
+
+let v = new validator("example_form", [
+    {
+        id: 'email-1',
+        msg: '请输入正确的邮件地址',
+        category: 'email',
+        rule: 'required|isEmail',
+    },
+    {
+        name: 'password-1',
+        msg: '请输入合法的密码!长度应在6-30位包含数字和字母。',
+        category: 'password',
+        rule: 'required|isPassword',
+    },
+    {
+        id: 'repassword-1',
+        msg: '两次密码输入需一致',
+        category: 'repassword',
+        rule: 'required|equal(password)',
+    }
+]);
+
+// 私人处理
+let myfun = function (id) {
+    let form = document.forms[id];
+    // console.log(form);
+    console.log('hi!');
+    if( v.validate(form, 'tishi') ) return true;
+    else return false;
+}
+</script>
+</html>
