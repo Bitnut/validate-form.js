@@ -87,7 +87,7 @@ let validator = function(formId, customRules) {
         let tmp = customRules[i];
 
         // 保证一个规则至少包括名字或者 id 和规则
-        if( !(tmp.name && tmp.id) ) {
+        if( !(tmp.name || tmp.id) ) {
             
             console.warn( 'skiped a rule without a name or id');
 
@@ -170,7 +170,6 @@ function addField( self, field ){
 let handleError = function(err) {
 
     console.log( 'handling error msg' );
-
     if(err.length === 0) {
 
         console.log('err length is 0');
@@ -181,38 +180,61 @@ let handleError = function(err) {
         for(let a in err) {
 
             console.log(a, err[a]);
-            var ele = document.getElementById(`${a}-span`);
-            ele.innerHTML = err[a];
-            ele.style.display = 'inline';
+            if ( !err[a].isName ) {
+                let ele = document.getElementById(`${a}-span`);
+                ele.innerHTML = err[a].msg;
+                ele.style.display = 'inline';
+            } else {
+                let eleArr = document.getElementsByName(`${a}-span`);
+                console.log(eleArr);
+                for( let i = 0; i < eleArr.length; i++ ) {
+
+                    eleArr[i].innerHTML = err[a].msg;
+                    eleArr[i].style.display = 'inline';
+
+                }
+            }
+            
             
         }
         return;
 
     }
-    return;
 
 }
 
 validator.prototype.validate = function(form, noticeClass) {
 
+    console.log('>>>>> submit event triggered');
     clear(noticeClass);
     let error = {};
 
     
     for(let i = 0; i < form.length - 1; i++) {
-        let target = this.fields[form[i].name].category;
+        
+        let item = form[i];
+        let flag = item.hasAttribute('id');
+        let itemTag = flag ? item.id : item.name;
+        let itemCategory = flag ? this.fields[itemTag].category : this.fields[itemTag].category;
 
-        if (regexs[target].test(form[i].value)) {
+        if(regexs[itemCategory]) {
 
-            log('success');
+            if (regexs[itemCategory].test(item.value)) {
 
-        } else{
+                log('success');
+    
+            } else{
 
-            let name = target;
-            log(name);
-            error[name] = notices[name];
+                error[itemTag] = {
+                    msg: notices[itemCategory],
+                    isName: flag ? false : true
+                };
+    
+            }
 
         }
+
+        
 
     }
 
@@ -242,7 +264,7 @@ let handleSingleErr = function( name, message, isName = false ) {
 }
 
 let blurValidate = function( category, inputName, isName = false ) {
-    console.log('>>>>> onblur event triggered')
+    console.log('>>>>> onblur event triggered');
     let flag = false;
     let rule;
     for( let item of customRules) {

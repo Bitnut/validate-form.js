@@ -31,6 +31,7 @@ v.isPassword('94009');
 var a = new validator('example_form',[
     {
         // 表单中input元素的 id 字段 ( id/name 应当至少有一个，两者都有也可, 为了避免歧义和不必要的误解，最好只指定一个)
+        // 注意！使用name的时候应该时希望能够批量操作一批dom元素，这个时候避免使用id，以免验证功能失效
         id: 'email-1',
         (// 表单中input元素的 name 字段
         name: 'hello-email',)
