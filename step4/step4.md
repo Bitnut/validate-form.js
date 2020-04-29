@@ -50,3 +50,5 @@ var a = new validator('example_form',[
         onblur: 'false'
     }
 ])
+
+3. 分离规则绑定函数

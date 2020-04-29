@@ -11,7 +11,8 @@ const notices = {
     email: "您还没有输入登录邮箱，无法登录！",
     password: "请输入合法的密码!长度应在6-30位包含数字和字母。",
     repassword: "两次密码输入需一致",
-    success: "成功"
+    success: "成功！",
+    required: "不能为空！"
 
 }
 
@@ -41,7 +42,10 @@ const _testHook = {
     is_password: function(field){return regexs.password.test( field );},
     required: function(field){return field !== '' && field !== null},
     equal: function (field, newField) {
-        return field === newField;
+        let value1 = field;
+        let value2 = this.fields[newField].fieldValue;
+
+        return value1 == value2;
     }
 
 }
@@ -61,7 +65,7 @@ let log = function (type) {
 
 }
 
-let validator = function(formId, customRules) {
+let Validator = function(formId, customRules) {
     
   
     // 把默认的验证规则复制一份绑定在实例上
@@ -75,26 +79,27 @@ let validator = function(formId, customRules) {
         
     }
 
-    // 传参为 0 时的简单用法,在这里直接返回
+    // 不传参的简单用法
     if (!formId) return this;
 
     // 保存页面的所有待验证 field 的信息
     this.fields = {}
 
-    // 对 customRules 作处理
+    // 对传入的 customRules 作校验
     for(let i = 0; i < customRules.length; i++) {
 
         let tmp = customRules[i];
+        let nameValue = tmp.id ? tmp.id : tmp.name;
 
         // 保证一个规则至少包括名字或者 id 和规则
-        if( !(tmp.name || tmp.id) ) {
+        if( !nameValue ) {
             
-            console.warn( 'skiped a rule without a name or id');
+            console.error( '>>>>>> 请至少为一个规则给定元素 id 或者 name！>>>>>>');
 
         }
-        if( !tmp.rules && typeof(tmp.rules) === 'string' && tmp.rules !== '' ) {
+        if( !(nameValue.rules && typeof(nameValue.rules) === 'string' && nameValue.rules !== '') ) {
 
-            console.warn( `skiped a rule with name: \[ ${tmp.name} \] since you have passed a rule without \' rules \' attribute`);
+            console.error( `>>>>>> 元素: \[ ${nameValue} \] 的规则传递错误，请检查传参！>>>>>>`);
 
         }
 
@@ -116,6 +121,16 @@ function camelCase(string){
 
 }
 
+function ruleExist(self, rules) {
+    console.log("checking rules exist");
+    for(let i = 0; i < rules.length; i++) {
+        if(ruls[i] !== "required" && !self.hasOwnProperty(rules[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
 function addField( self, field ){
     let nameValue = field.id ? field.id : field.name;
     console.log('>>>>> adding field');
@@ -125,18 +140,60 @@ function addField( self, field ){
         name: field.name ? field.name : null,
         msg: field.msg? field.msg : "",
         category: field.category? field.category : null,
-        rules: field.rules,
+        rules: null,
+        fieldValue: null,
         // element: null,
         onblur: field.onblur ? field.onblur : true
 
     }
+
+
+    // todo: 目前只支持两种规则，待扩展
+    // 为指定元素绑定规则
+    let rules = field.rules.split('|');
+    // 验证规则是否存在
+    let hasRule = ruleExist(self, rules);
+    if(!hasRule) {
+        console.warn('you have passed a non-exist rule!');
+        return;
+    }
+    // 处理特殊的函数规则
+    if( rules.indexOf('required') !== -1 ) {
+        if( rules[1] && !self.hasOwnProperty(rules[1])) {
+            let parts = regexs.method.exec(rules[1]);
+            self.fields[nameValue].rules = [
+                "required",
+                {
+                method: parts[1],
+                args: parts[2].split(',')
+                }
+            ];
+        } else {
+            self.fields[nameValue].rules = rules;
+        }
+    } else {
+        if( !self.hasOwnProperty(rules[0])) {
+            let parts = regexs.method.exec(rules[0]);
+            self.fields[nameValue].rules = [
+                {
+                method: parts[1],
+                args: parts[2].split(',')
+                }
+            ];
+        } else {
+            self.fields[nameValue].rules = rules;
+        }
+    }
+    
+
+
     // 绑定 onblur 事件监听器
     if( self.fields[nameValue].onblur === true ) {
         if( field.id ) {
 
             console.log(`>>>>> adding id ${field.id}`);
             document.getElementById(field.id).addEventListener("blur", function() { 
-                blurValidate(field.category, field.id);
+                blurValidate( field.id );
             } , true);
 
         } else {
@@ -145,7 +202,7 @@ function addField( self, field ){
             let target = document.getElementsByName(field.name);
             for(let i = 0; i < target.length; i++) {
                 document.getElementsByName(field.name)[i].addEventListener("blur", function() {
-                    blurValidate(field.category, field.name, true);
+                    blurValidate( field.name, true);
                 }, true);
             }
             
@@ -166,7 +223,9 @@ function addField( self, field ){
 
 }
 
-// 提交表单时触发
+
+// todo: 添加成功状态的处理
+// 处理整个表单状态的接口函数
 let handleError = function(err) {
 
     console.log( 'handling error msg' );
@@ -203,47 +262,200 @@ let handleError = function(err) {
 
 }
 
-validator.prototype.validate = function(form, noticeClass) {
+validator.prototype = {
 
-    console.log('>>>>> submit event triggered');
-    clear(noticeClass);
-    let error = {};
+    // 表单验证
+    validate: function(form, noticeClass) {
 
-    
-    for(let i = 0; i < form.length - 1; i++) {
+        console.log('>>>>> submit event triggered');
+        clear(noticeClass);
+        let error = {};
         
-        let item = form[i];
-        let flag = item.hasAttribute('id');
-        let itemTag = flag ? item.id : item.name;
-        let itemCategory = flag ? this.fields[itemTag].category : this.fields[itemTag].category;
+        for(let i = 0; i < form.length - 1; i++) {
+            
+            let ele = form[i];
+            let flag = ele.hasAttribute('id');
+            let eleTag = flag ? ele.id : ele.name;
+            let field = this.fields[eleTag];
+            // let eleCategory = flag ? field.category : field.category;
+            let rules = field.rules;
+            let msg = field.msg;
+            let fieldValue = ele.value;
 
-        if(regexs[itemCategory]) {
+            field.fieldValue = fieldValue;
+            
+            //带 required 规则的处理逻辑
+            if( rules.indexOf('required') !== -1 ) {
+                console.log('check required first');
+                if( fieldValue === '') {
+                    console.log('error: field required!');
+                    error[eleTag] = {
+                        msg: msg,
+                        isName: flag ? false : true
+                    };
+                    continue;
+                } else if ( rules[1] ){
 
-            if (regexs[itemCategory].test(item.value)) {
+                    let rule = rules[1];
+                    if( typeof(rule) === "string" ) {
+                        console.log('using regex');
+                        if( !this[rule](fieldValue)) {
+                            error[eleTag] = {
+                                msg: msg,
+                                isName: flag ? false : true
+                            };
+                        }
+                    } else {
+                        console.log('using method');
+                        if (!this[rule.method](fieldValue, rule.args[0])) {
+                            error[eleTag] = {
+                                msg: msg,
+                                isName: flag ? false : true
+                            };
+                        }
+                    }
+                    continue;
+                }
+            } else {
+                let rule = rules[0];
+                if( typeof(rule) === string) {
+                    console.log('using regex');
+                    if( !this[rule](fieldValue)) {
+                        error[eleTag] = {
+                            msg: msg,
+                            isName: flag ? false : true
+                        };
+                    }
+                } else {
+                    console.log('using method');
+                    if (!this[rule.method](fieldValue, rule.args[0])) {
+                        error[eleTag] = {
+                            msg: msg,
+                            isName: flag ? false : true
+                        };
+                    }
+                }
+                continue;
+            }
+            
 
-                log('success');
+            // todo: 添加自定义正则的功能
+            // if(regexs[eleCategory]) {
     
-            } else{
-
-                error[itemTag] = {
-                    msg: notices[itemCategory],
-                    isName: flag ? false : true
-                };
+            //     if (regexs[eleCategory].test(ele.value)) {
     
+            //         log('success');
+        
+            //     } else{
+    
+            //         error[eleTag] = {
+            //             msg: notices[eleCategory],
+            //             isName: flag ? false : true
+            //         };
+        
+            //     }
+    
+            // }
+    
+            
+    
+        }
+    
+        handleError(error, noticeClass);
+        
+    },
+    blurValidate: function( eleTag, isName = false ) {
+        console.log('>>>>> onblur event triggered');
+        
+        let field = this.fields[eleTag];
+        let msg = field.msg;
+        let rules = field.rules.slice(0);
+        let inputName = isName ? field.name : field.id;
+
+
+        if ( isName ) {
+            
+            let eleArr = document.getElementsByName(inputName);
+            if( rules.indexOf('required') !== -1 ) {
+                
+                
             }
 
+
+
+            for(let i = 0; i < eleArr.length; i++) {
+                eleValue = eleArr[i].value;
+                if( rules.indexOf('required') !== -1 ) {
+                    if( eleValue === '' ) {
+                        console.log('必填');
+                        handleSingleErr (inputName, '必填!', true);
+                        return;
+                    } else if ( rules[1] ) {
+                        let rule = rules[1];
+                        if(typeof(rule) === "string") {
+                            if( index && !_testHook[rules[1]](eleValue) ) {
+                                console.log(msg);
+                                handleSingleErr (inputName, msg, true);
+                                return;
+                            }
+                        } else {
+                            var parts = regexs.method.exec(rules[1]);
+                            let method, args;
+                            if(parts) {
+                                method = parts[1];
+                                args = parts[2].split(',');
+                                let hasMethod = _testHook.hasOwnProperty(method);
+                                if( hasMethod && !_testHook[method]( document.getElementById(args[0]).value, eleValue) ) {
+                                    console.log(msg);
+                                    handleSingleErr (inputName, msg, true);
+                                    return;
+                                }
+                            }
+                        }
+                    }
+
+                } else {
+
+                }
+                
+            }
+
+        } else {
+            eleValue = document.getElementById(inputName).value;
+            if(rules.indexOf('required') !== -1 && eleValue === '') {
+                console.log('必填');
+                handleSingleErr (inputName, '必填!');
+                return;
+            }
+            let index = _testHook.hasOwnProperty(rules[1]);
+            if( index && !_testHook[rules[1]](eleValue) ) {
+                console.log(msg);
+                handleSingleErr (inputName, msg);
+                return;
+            } 
+            // 解析函数规则
+            var parts = regexs.method.exec(rules[1]);
+            let method, args;
+            if(parts) {
+                method = parts[1];
+                args = parts[2].split(',');
+                let hasMethod = _testHook.hasOwnProperty(method);
+                if( hasMethod && !_testHook[method]( document.getElementById(args[0]).value, eleValue) ) {
+                    console.log(msg);
+                    handleSingleErr (inputName, msg);
+                    return;
+                }
+            }
         }
-
+    
         
-
     }
 
-    handleError(error, noticeClass);
-    
 }
 
 // 控件失去焦点时触发
 // todo: 添加验证成功的处理
+// 处理单个 input 元素状态的接口函数
 let handleSingleErr = function( name, message, isName = false ) {
     
     if( isName ) {
@@ -260,89 +472,5 @@ let handleSingleErr = function( name, message, isName = false ) {
     }
     
     
-
-}
-
-let blurValidate = function( category, inputName, isName = false ) {
-    console.log('>>>>> onblur event triggered');
-    let flag = false;
-    let rule;
-    for( let item of customRules) {
-        if(item.name === category) {
-            flag = true;
-            rule = item;
-            break;
-        }
-    }
-    if(flag) {
-         
-        let msg = rule.msg;
-        let rules = rule.rule.split('|');
-
-        let field;
-        if ( isName ) {
-            let targetArr = document.getElementsByName(inputName);
-            for(let i = 0; i < targetArr.length; i++) {
-                field = targetArr[i].value;
-                
-                if(rules.indexOf('required') !== -1 && field === '') {
-                    console.log('必填');
-                    handleSingleErr (inputName, '必填!', true);
-                    return;
-                }
-                let index = _testHook.hasOwnProperty(rules[1]);
-                if( index && !_testHook[rules[1]](field) ) {
-                    console.log(msg);
-                    handleSingleErr (inputName, msg, true);
-                    return;
-                } 
-                // 解析函数规则
-                var parts = regexs.method.exec(rules[1]);
-                let method, args;
-                if(parts) {
-                    method = parts[1];
-                    args = parts[2].split(',');
-                    let hasMethod = _testHook.hasOwnProperty(method);
-                    if( hasMethod && !_testHook[method]( document.getElementById(args[0]).value, field) ) {
-                        console.log(msg);
-                        handleSingleErr (inputName, msg, true);
-                        return;
-                    }
-                }
-            }
-
-        } else {
-            field = document.getElementById(inputName).value;
-            if(rules.indexOf('required') !== -1 && field === '') {
-                console.log('必填');
-                handleSingleErr (inputName, '必填!');
-                return;
-            }
-            let index = _testHook.hasOwnProperty(rules[1]);
-            if( index && !_testHook[rules[1]](field) ) {
-                console.log(msg);
-                handleSingleErr (inputName, msg);
-                return;
-            } 
-            // 解析函数规则
-            var parts = regexs.method.exec(rules[1]);
-            let method, args;
-            if(parts) {
-                method = parts[1];
-                args = parts[2].split(',');
-                let hasMethod = _testHook.hasOwnProperty(method);
-                if( hasMethod && !_testHook[method]( document.getElementById(args[0]).value, field) ) {
-                    console.log(msg);
-                    handleSingleErr (inputName, msg);
-                    return;
-                }
-            }
-        }
-
-    } else {
-
-        console.log('符合条件的规则不存在，请检查传参');
-
-    }
 
 }

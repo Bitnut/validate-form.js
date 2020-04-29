@@ -12,8 +12,8 @@
         <span style="color:red;font-size: 12px;display: none;" class="tishi" id = "email-1-span">  
             必须两位字符及以上  
         </span>
-        <div><label for="password">密码</label><input type="text" name="password-1"></div>
-        <span style="color:red;font-size: 12px;display: none;" class="tishi" name = "password-1-span">  
+        <div><label for="password">密码</label><input type="text" id="password-1"></div>
+        <span style="color:red;font-size: 12px;display: none;" class="tishi" id = "password-1-span">  
             密码格式不正确  
         </span>
         <div><label for="repassword">重复密码</label><input type="text" id="repassword-1" name="repassword"></div>
@@ -30,19 +30,19 @@ let v = new validator("example_form", [
         id: 'email-1',
         msg: '请输入正确的邮件地址',
         category: 'email',
-        rule: 'required|isEmail',
+        rules: 'required|isEmail',
     },
     {
-        name: 'password-1',
+        id: 'password-1',
         msg: '请输入合法的密码!长度应在6-30位包含数字和字母。',
         category: 'password',
-        rule: 'required|isPassword',
+        rules: 'required|isPassword',
     },
     {
         id: 'repassword-1',
         msg: '两次密码输入需一致',
         category: 'repassword',
-        rule: 'required|equal(password)',
+        rules: 'required|equal(password-1)',
     }
 ]);
 
