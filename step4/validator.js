@@ -90,24 +90,29 @@ let Validator = function(formId, customRules) {
 
         let tmp = customRules[i];
         let nameValue = tmp.id ? tmp.id : tmp.name;
-
-        // 保证一个规则至少包括名字或者 id 和规则
+        
         if( !nameValue ) {
-            
             console.error( '>>>>>> 请至少为一个规则给定元素 id 或者 name！>>>>>>');
-
+            return;
         }
-        if( !(nameValue.rules && typeof(nameValue.rules) === 'string' && nameValue.rules !== '') ) {
-
+        // todo: 查询一下是否可以查找到非实时页面的元素
+        if( !(document.getElementById(nameValue) || document.getElementsByName(nameValue))) {
+            console.error( `>>>>>> 元素 id 或者 name: \[ ${nameValue} \] 在页面中不存在，请检查传参！>>>>>>`);
+            return;
+        }
+        if( !(tmp.rules && typeof(tmp.rules) === 'string' && tmp.rules !== '') ) {
             console.error( `>>>>>> 元素: \[ ${nameValue} \] 的规则传递错误，请检查传参！>>>>>>`);
-
+            return;
         }
-
-        // 添加验证字段
-        addField(this, tmp);
 
     }
-    
+    // 添加验证字段
+    for(let item of customRules) {
+        addField(this, item);
+    }
+
+
+    console.log(this.fields);
 }
 
 // 为validator 实例绑定函数时对函数名做适当处理
@@ -124,7 +129,9 @@ function camelCase(string){
 function ruleExist(self, rules) {
     console.log("checking rules exist");
     for(let i = 0; i < rules.length; i++) {
-        if(ruls[i] !== "required" && !self.hasOwnProperty(rules[i])) {
+        if( typeof(rules[i]) === "string" && !self.hasOwnProperty(rules[i])) {
+            return false;
+        } else if ( typeof(rules[i]) === "Object" && !self.hasOwnProperty(rules[i].method)) {
             return false;
         }
     }
@@ -149,51 +156,42 @@ function addField( self, field ){
 
 
     // todo: 目前只支持两种规则，待扩展
-    // 为指定元素绑定规则
+    // 下面代码为指定元素绑定规则
     let rules = field.rules.split('|');
+    // 处理特殊的带参数函数规则，如：equeal(password)
+    if( rules.indexOf('required') !== -1 && rules[1] && !self.hasOwnProperty(rules[1])) {
+        
+        let parts = regexs.method.exec(rules[1]);
+        rules[1] = {
+            method: parts[1],
+            args: parts[2].split(',')
+        }
+
+    } else if ( !self.hasOwnProperty(rules[0])) {
+
+        let parts = regexs.method.exec(rules[0]);
+        rules[0] = {
+            method: parts[1],
+            args: parts[2].split(',')
+        }
+
+    }
     // 验证规则是否存在
     let hasRule = ruleExist(self, rules);
     if(!hasRule) {
-        console.warn('you have passed a non-exist rule!');
+        console.error('你传递了一个不存在的规则!');
         return;
     }
-    // 处理特殊的函数规则
-    if( rules.indexOf('required') !== -1 ) {
-        if( rules[1] && !self.hasOwnProperty(rules[1])) {
-            let parts = regexs.method.exec(rules[1]);
-            self.fields[nameValue].rules = [
-                "required",
-                {
-                method: parts[1],
-                args: parts[2].split(',')
-                }
-            ];
-        } else {
-            self.fields[nameValue].rules = rules;
-        }
-    } else {
-        if( !self.hasOwnProperty(rules[0])) {
-            let parts = regexs.method.exec(rules[0]);
-            self.fields[nameValue].rules = [
-                {
-                method: parts[1],
-                args: parts[2].split(',')
-                }
-            ];
-        } else {
-            self.fields[nameValue].rules = rules;
-        }
-    }
+    self.fields[nameValue].rules = rules;
+
     
-
-
-    // 绑定 onblur 事件监听器
+    // 下面代码绑定 onblur 事件监听器
     if( self.fields[nameValue].onblur === true ) {
         if( field.id ) {
 
             console.log(`>>>>> adding id ${field.id}`);
             document.getElementById(field.id).addEventListener("blur", function() { 
-                blurValidate( field.id );
+                self.blurValidate( field.id );
             } , true);
 
         } else {
@@ -202,7 +200,7 @@ function addField( self, field ){
             let target = document.getElementsByName(field.name);
             for(let i = 0; i < target.length; i++) {
                 document.getElementsByName(field.name)[i].addEventListener("blur", function() {
-                    blurValidate( field.name, true);
+                    self.blurValidate( field.name, true);
                 }, true);
             }
             
@@ -262,7 +260,7 @@ let handleError = function(err) {
 
 }
 
-validator.prototype = {
+Validator.prototype = {
 
     // 表单验证
     validate: function(form, noticeClass) {
@@ -288,9 +286,9 @@ validator.prototype = {
             if( rules.indexOf('required') !== -1 ) {
                 console.log('check required first');
                 if( fieldValue === '') {
-                    console.log('error: field required!');
+                    console.log('不能为空!');
                     error[eleTag] = {
-                        msg: msg,
+                        msg: notices['required'],
                         isName: flag ? false : true
                     };
                     continue;
@@ -374,81 +372,111 @@ validator.prototype = {
 
 
         if ( isName ) {
-            
+
             let eleArr = document.getElementsByName(inputName);
             if( rules.indexOf('required') !== -1 ) {
-                
-                
-            }
-
-
-
-            for(let i = 0; i < eleArr.length; i++) {
-                eleValue = eleArr[i].value;
-                if( rules.indexOf('required') !== -1 ) {
+                for(let i = 0; i < eleArr.length; i++) {
+                    console.log(`处理第 ${i} 个 name 元素`);
+                    eleValue = eleArr[i].value;
+                    // 验证值是否为空
                     if( eleValue === '' ) {
-                        console.log('必填');
-                        handleSingleErr (inputName, '必填!', true);
-                        return;
-                    } else if ( rules[1] ) {
-                        let rule = rules[1];
-                        if(typeof(rule) === "string") {
-                            if( index && !_testHook[rules[1]](eleValue) ) {
+                        console.log(notices['required']);
+                        handleSingleErr (inputName, notices['required'], true);
+                        continue;
+                    }
+                    if( rules[1] ) {
+                        let secondRule = rules[1];
+                        if(typeof(secondRule) === "string") {
+                            console.log('using regex');
+                            if( !this[secondRule](eleValue) ) {
                                 console.log(msg);
                                 handleSingleErr (inputName, msg, true);
-                                return;
+                                continue;
                             }
                         } else {
-                            var parts = regexs.method.exec(rules[1]);
-                            let method, args;
-                            if(parts) {
-                                method = parts[1];
-                                args = parts[2].split(',');
-                                let hasMethod = _testHook.hasOwnProperty(method);
-                                if( hasMethod && !_testHook[method]( document.getElementById(args[0]).value, eleValue) ) {
-                                    console.log(msg);
-                                    handleSingleErr (inputName, msg, true);
-                                    return;
-                                }
+                            console.log('using method');
+                            if (!this[secondRule.method](eleValue, secondRule.args[0])) {
+                                console.log(msg);
+                                handleSingleErr (inputName, msg, true);
+                                continue;
                             }
                         }
                     }
-
-                } else {
-
                 }
-                
+            } else {
+                for(let i = 0; i < eleArr.length; i++) {
+                    console.log(`处理第 ${i} 个 name 元素`);
+                    eleValue = eleArr[i].value;
+                    let rule = rules[0];
+                    if(typeof(rule) === "string") {
+                        console.log('using regex');
+                        if( !this[rule](eleValue) ) {
+                            console.log(msg);
+                            handleSingleErr (inputName, msg, true);
+                            continue;
+                        }
+                    } else {
+                        console.log('using method');
+                        if (!this[rule.method](eleValue, rule.args[0])) {
+                            console.log(msg);
+                            handleSingleErr (inputName, msg, true);
+                            continue;
+                        }
+                    }
+                }
             }
 
         } else {
+
             eleValue = document.getElementById(inputName).value;
-            if(rules.indexOf('required') !== -1 && eleValue === '') {
-                console.log('必填');
-                handleSingleErr (inputName, '必填!');
-                return;
-            }
-            let index = _testHook.hasOwnProperty(rules[1]);
-            if( index && !_testHook[rules[1]](eleValue) ) {
-                console.log(msg);
-                handleSingleErr (inputName, msg);
-                return;
-            } 
-            // 解析函数规则
-            var parts = regexs.method.exec(rules[1]);
-            let method, args;
-            if(parts) {
-                method = parts[1];
-                args = parts[2].split(',');
-                let hasMethod = _testHook.hasOwnProperty(method);
-                if( hasMethod && !_testHook[method]( document.getElementById(args[0]).value, eleValue) ) {
-                    console.log(msg);
-                    handleSingleErr (inputName, msg);
+            if(rules.indexOf('required') !== -1) {
+
+                if( eleValue === '' ) {
+                    console.log(notices['required']);
+                    handleSingleErr (inputName, notices['required']);
                     return;
                 }
+                if( rules[1] ) {
+                    let secondRule = rules[1];
+                    if(typeof(secondRule) === "string") {
+                        console.log('using regex');
+                        if( !this[secondRule](eleValue) ) {
+                            console.log(msg);
+                            handleSingleErr (inputName, msg);
+                            return;
+                        }
+                    } else {
+                        console.log('using method');
+                        if (!this[secondRule.method](eleValue, secondRule.args[0])) {
+                            console.log(msg);
+                            handleSingleErr (inputName, msg);
+                            return;
+                        }
+                    }
+                }
+
+            } else {
+
+                let rule = rules[0];
+                if(typeof(rule) === "string") {
+                    console.log('using regex');
+                    if( !this[rule](eleValue) ) {
+                        console.log(msg);
+                        handleSingleErr (inputName, msg);
+                        return;
+                    }
+                } else {
+                    console.log('using method');
+                    if (!this[rule.method](eleValue, rule.args[0])) {
+                        console.log(msg);
+                        handleSingleErr (inputName, msg);
+                        return;
+                    }
+                }
+
             }
         }
-    
-        
+
     }
 
 }
