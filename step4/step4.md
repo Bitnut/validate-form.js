@@ -49,6 +49,14 @@ var a = new validator('example_form',[
         rules: 'required',
         onblur: 'false'
     }
-])
+]， )
 
 3. 分离规则绑定函数
+
+4. 代码模块化管理
+
+5. bug 处理
+
+6. 调试模块优化
+
+7. 调用接口时传参处理
