@@ -97,11 +97,19 @@ let addField = function( self, field ){
     
     // 下面代码绑定 onblur 事件监听器
     if( self.fields[nameValue].onblur === true ) {
-        if( field.id ) {
 
+        // 校验拦截
+        let submitBtn = document.getElementById("newbutton");
+
+        if( field.id ) {
+            
             console.log(`>>>>> adding id ${field.id}`);
-            document.getElementById(field.id).addEventListener("blur", function() { 
+            document.getElementById(field.id).addEventListener("blur", function() {
+                
                 self.blurValidate( field.id );
+                if(window.event.relatedTarget.id === 'newbutton') {
+                    self.validate();
+                }
             } , true);
 
         } else {
@@ -112,6 +120,9 @@ let addField = function( self, field ){
                 document.getElementsByName(field.name)[i].addEventListener("blur", function() {
                     self.blurValidate( field.name, true);
                 }, true);
+            }
+            if(window.event.relatedTarget.id === 'newbutton') {
+                self.validate();
             }
             
         }
