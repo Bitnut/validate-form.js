@@ -1,4 +1,4 @@
-const Validator = function(formId, customRules) {
+const Validator = function(formInfo, customRules) {
 
     // 保存页面的所有待验证 field 的信息
     this.fields = {}
@@ -12,12 +12,17 @@ const Validator = function(formId, customRules) {
     }
     
     // 不传参的简单用法
-    if (!formId) return this;
+    if (!formInfo) return this;
 
-
+    let formId = formInfo[0];
+    let submitId = formInfo[1];
     // 检验传入表单名字是否合法
     if ( !document.getElementById(formId)) {
         console.error( `>>>>>> 指定表单: \[ ${formId} \] 不存在，请检查传参！>>>>>>`);
+        return;
+    }
+    if ( !document.getElementById(submitId)) {
+        console.error( `>>>>>> 提交按钮 id: \[ ${submitId} \] 不存在，请检查传参！>>>>>>`);
         return;
     }
     // 对传入的 customRules 作校验
@@ -26,9 +31,13 @@ const Validator = function(formId, customRules) {
 
     // 添加表单 id
     this.formId = formId;
+    // 添加提交按钮 id
+    this.submitId = submitId;
     // 添加验证字段
     for(let item of customRules) {
+
         addField(this, item);
+
     }
 
     console.log(this.fields);
@@ -41,21 +50,18 @@ Validator.prototype = {
         console.log('>>>>> submit event triggered');
         let error = [];
         let form = document.forms[this.formId];
-        for(let i = 0; i < form.length; i++) {
-            console.log(form[i]);
-        }
-        for(let i = 0; i < form.length - 1; i++) {
-            
-            let ele = form[i];
-            let flag = ele.hasAttribute('id');
-            let eleTag = flag ? ele.id : ele.name;
-            let field = this.fields[eleTag];
-            // let eleCategory = flag ? field.category : field.category;
+        let fields = this.fields;
+
+        for(let i = 0; i < fields.length; i++) {
+
+            let eleTag = fields[i].eleTag;
+            let field = fields[eleTag];
             let rules = field.rules;
             let msg = field.msg;
-            let fieldValue = ele.value;
 
-            //field.fieldValue = fieldValue;
+            let ele = form[eleTag];
+            let idFlag = ele.hasAttribute('id');
+            let fieldValue = ele.value;
             
             //带 required 规则的处理逻辑
             if( rules.indexOf('required') !== -1 ) {
@@ -65,7 +71,7 @@ Validator.prototype = {
                     error.push ({
                         eleTag: eleTag,
                         msg: notices['required'],
-                        isName: flag ? false : true
+                        isName: idFlag ? false : true
                     });
                     continue;
                 } else if ( rules[1] ){
@@ -77,7 +83,7 @@ Validator.prototype = {
                             error.push({
                                 eleTag: eleTag,
                                 msg: msg,
-                                isName: flag ? false : true
+                                isName: idFlag ? false : true
                             });
                         }
                     } else {
@@ -86,7 +92,7 @@ Validator.prototype = {
                             error.push({
                                 eleTag: eleTag,
                                 msg: msg,
-                                isName: flag ? false : true
+                                isName: idFlag ? false : true
                             });
                         }
                     }
@@ -100,7 +106,7 @@ Validator.prototype = {
                         error.push({
                             eleTag: eleTag,
                             msg: msg,
-                            isName: flag ? false : true
+                            isName: idFlag ? false : true
                         });
                     }
                 } else {
@@ -109,7 +115,7 @@ Validator.prototype = {
                         error.push({
                             eleTag: eleTag,
                             msg: msg,
-                            isName: flag ? false : true
+                            isName: idFlag ? false : true
                         });
                     }
                 }
