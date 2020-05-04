@@ -55,6 +55,8 @@ Validator.prototype = {
 
     // 表单验证
     validateForm: function(evt) {
+
+        this.errors = [];
         console.log('>>>>> submit event triggered');
         // let form = this.form;
         
@@ -85,7 +87,6 @@ Validator.prototype = {
 
     },
     _validateField: function(field) {
-        
         let rules = field.rules;
         let indexOfRequired = rules.indexOf('required');
         
@@ -135,7 +136,7 @@ Validator.prototype = {
                 console.error('试图使用一个不存在的方法进行校验');
             }
 
-            // 处理校验错误
+            // 处理校验错误，写在前面的规则优先级高于后面的规则
             if (failed) {
 
                 var existingError;
@@ -153,10 +154,6 @@ Validator.prototype = {
                 };
                 
                 if (!existingError) this.errors.push(errorObject);
-
-                for (let j = 0; j < this.errors.length; j++) {
-                    console.log(this.errors[j]);
-                }
             }
         }
     },
@@ -165,87 +162,21 @@ Validator.prototype = {
         console.log('>>>>> onblur event triggered');
 
         let field = this.fields[eleTag];
-        let msg = field.msg;
-        let rules = field.rules.slice(0);
-        let inputName = isName ? field.name : field.id;
-
-        if ( isName ) {
-
-            let eleArr = document.getElementsByName(inputName);
-            if( rules.indexOf('required') !== -1 ) {
-                for(let i = 0; i < eleArr.length; i++) {
-                    console.log(`处理第 ${i} 个 name 元素`);
-                    eleValue = eleArr[i].value;
-                    field.fieldValue = eleValue;
-                    // 验证值是否为空
-                    if( eleValue === '' ) {
-                        handleSingleInput (inputName, notices['required'], false, true);
-                        continue;
-                    }
-                    if( rules[1] ) {
-                        let secondRule = rules[1];
-                        if(typeof(secondRule) === "string") {
-                            console.log('using regex');
-                            handleSingleInput (inputName, msg, this[secondRule](eleValue), true);
-                            continue;
-                        } else {
-                            console.log('using method');
-                            handleSingleInput (inputName, msg, this[secondRule.method](eleValue, secondRule.args[0]), true);
-                            continue;
-                        }
-                    }
-                }
-            } else {
-                for(let i = 0; i < eleArr.length; i++) {
-                    console.log(`处理第 ${i} 个 name 元素`);
-                    eleValue = eleArr[i].value;
-                    field.fieldValue = eleValue;
-                    let rule = rules[0];
-                    if(typeof(rule) === "string") {
-                        console.log('using regex');
-                        handleSingleInput (inputName, msg, this[rule](eleValue), true);
-                        continue;
-                    } else {
-                        console.log('using method');
-                        handleSingleInput (inputName, msg, this[rule.method](eleValue, rule.args[0]), true);
-                        continue;
-                    }
-                }
-            }
-
-        } else {
-
-            eleValue = document.getElementById(inputName).value;
-            field.fieldValue = eleValue;
-            if(rules.indexOf('required') !== -1) {
-
-                if( eleValue === '' ) {
-                    handleSingleInput (inputName, notices['required'], false);
-                }
-                if( rules[1] ) {
-                    let secondRule = rules[1];
-                    if(typeof(secondRule) === "string") {
-                        console.log('using regex');
-                        handleSingleInput (inputName, msg, this[secondRule](eleValue));
-                    } else {
-                        console.log('using method');
-                        handleSingleInput (inputName, msg, this[secondRule.method](eleValue, secondRule.args[0]));
-                    }
-                }
-
-            } else {
-
-                let rule = rules[0];
-                if(typeof(rule) === "string") {
-                    console.log('using regex');
-                    handleSingleInput (inputName, msg, this[rule](eleValue));
-                } else {
-                    console.log('using method');
-                    handleSingleInput (inputName, msg, this[rule.method](eleValue, rule.args[0]));
-                }
-
+        let element = this.form[eleTag];
+        field.fieldValue = attributeValue(element, 'value');
+        field.checked = attributeValue(element, 'checked');
+        // let msg = field.msg;
+        // let rules = field.rules.slice(0);
+        // let inputName = isName ? field.name : field.id;
+        for(let i = 0; i < this.errors.length; i++) {
+            if(this.errors[i].id === eleTag) {
+                console.log(this.errors[i].id);
+                this.errors.splice(i, 1);
+                break;
             }
         }
+        this._validateField(field);
+        handleSingleInput(field);
         return;
     },
 
@@ -271,10 +202,10 @@ Validator.prototype._testHooks = {
         return (value !== null && value !== '');
     },
     isEmail: function(field) {
-        return regexs.email.test( field );
+        return regexs.email.test( field.fieldValue );
     },
     isPassword: function(field) {
-        return regexs.password.test( field );
+        return regexs.password.test( field.fieldValue );
     },
     equal: function (field, newField) {
         let value1 = field;

@@ -10,8 +10,14 @@ let handleSubmit = function(err) {
     } else {
         console.log(err);
         for(let a of err) {
+            let errmsg;
+            if(a.rule === 'required') {
+                errmsg = notices[a.rule]; 
+            } else {
+                errmsg = a.msg;
+            }
             let ele = document.getElementById(`${a.id}-span`);
-            ele.innerHTML = a.msg;
+            ele.innerHTML = errmsg;
             ele.style.display = 'inline';
         }
     }
@@ -20,7 +26,7 @@ let handleSubmit = function(err) {
 
 // 动态表单验证模块，控件失去焦点时触发
 // 处理单个 input 元素状态的接口函数
-let handleSingleInput = function( nameValue, message, success, isName = false ) {
+let handleSingleInput = function( field, success = false, isName = false ) {
     
     if( isName ) {
         let ele = document.getElementsByName(`${nameValue}-span`);
@@ -38,15 +44,15 @@ let handleSingleInput = function( nameValue, message, success, isName = false ) 
             ele[i].style.display = 'inline';
         }
     } else {
-        let ele = document.getElementById(`${nameValue}-span`);
+        let ele = document.getElementById(`${field.id}-span`);
         if( success ) {
             console.log(notices['success']);
             ele.innerHTML = notices['success'];
             ele.style.display = 'inline';
             return;
         }
-        console.log(message);
-        ele.innerHTML = message;
+        console.log(field.msg);
+        ele.innerHTML = field.msg;
         ele.style.display = 'inline';
     }
 
