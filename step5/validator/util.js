@@ -9,6 +9,16 @@ let camelCase = function(string){
 
 }
 
+// 为传入函数名作 testhook 匹配
+let underscoreCase = function(string){ 
+
+    return string.replace( /[A-Z]/g, function( letter ) {
+
+        return '_'+letter.toLowerCase();
+
+    });
+
+}
 // 校验调用者传入的规则
 let checkCustomRules = function(customRules) {
 
@@ -36,17 +46,19 @@ let checkCustomRules = function(customRules) {
     
 }
 
-let ruleExist = function(self, rules) {
-    console.log("checking whether rules exist");
-    for(let i = 0; i < rules.length; i++) {
-        if( typeof(rules[i]) === "string" && !self.hasOwnProperty(rules[i])) {
-            return false;
-        } else if ( typeof(rules[i]) === "Object" && !self.hasOwnProperty(rules[i].method)) {
-            return false;
+function attributeValue(element, attributeName) {
+    var i;
+    if ((element.length > 0) && (element[0].type === 'radio' || element[0].type === 'checkbox')) {
+        for (i = 0; i < element.length; i++) {
+            if (element[i].checked) {
+                return element[i][attributeName];
+            }
         }
+        return;
     }
-    return true;
-}
+    return element[attributeName];
+};
+
 // 为验证组件添加待校验元素，这里称为 field
 let addField = function( self, field ){
     let nameValue = field.id ? field.id : field.name;
@@ -59,49 +71,31 @@ let addField = function( self, field ){
         category: field.category? field.category : null,
         rules: null,
         fieldValue: null,
-        // element: null,
+        element: null,
+        type: null,
+        checked: null,
         onblur: field.onblur ? field.onblur : true
 
     }
-
-
-    // todo: 目前只支持两种规则，待扩展
+    
     // 下面代码为指定元素绑定规则
     let rules = field.rules.split('|');
-    // 处理特殊的带参数函数规则，如：equeal(password)
-    if( rules.indexOf('required') !== -1 && rules[1] && regexs.method.test(rules[1])) {
-        
-        let parts = regexs.method.exec(rules[1]);
-        rules[1] = {
-            method: parts[1],
-            args: parts[2].split(',')
-        }
-
-    } else if ( regexs.method.test(rules[1])) {
-
-        let parts = regexs.method.exec(rules[0]);
-        rules[0] = {
-            method: parts[1],
-            args: parts[2].split(',')
-        }
-
-    }
-    // 验证规则是否存在
-    let hasRule = ruleExist(self, rules);
-    if(!hasRule) {
-        console.error('>>>>>> 传递了一个不存在的规则！请检查传参。>>>>>>');
-        return;
-    }
     self.fields[nameValue].rules = rules;
 
     
     // 下面代码绑定 onblur 事件监听器
     if( self.fields[nameValue].onblur === true ) {
-        if( field.id ) {
 
+        if( field.id ) {
+            
             console.log(`>>>>> adding id ${field.id}`);
-            document.getElementById(field.id).addEventListener("blur", function() { 
+            document.getElementById(field.id).addEventListener("blur", function() {
+                
                 self.blurValidate( field.id );
+                // 如果点击了提交按钮，处理提交事件
+                if(window.event.relatedTarget && window.event.relatedTarget.id === self.submitId) {
+                    self.validateForm();
+                }
             } , true);
 
         } else {
@@ -113,13 +107,16 @@ let addField = function( self, field ){
                     self.blurValidate( field.name, true);
                 }, true);
             }
+            if(window.event.relatedTarget && window.event.relatedTarget.id === submitId) {
+                self.validateForm();
+            }
             
         }
     }
     
 
     // todo: 传入自定义的正则匹配规则
-    // for (var a in field) {
+    // for (let a in field) {
 
     //   if (field.hasOwnProperty(a) && /^regexp\_/.test(a)) {
 
@@ -130,3 +127,6 @@ let addField = function( self, field ){
     // }
 
 }
+
+
+
