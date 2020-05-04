@@ -10,20 +10,9 @@ let handleSubmit = function(err) {
     } else {
         console.log(err);
         for(let a of err) {
-
-            if ( !a.isName ) {
-                let ele = document.getElementById(`${a.eleTag}-span`);
-                ele.innerHTML = a.msg;
-                ele.style.display = 'inline';
-            } else {
-                let eleArr = document.getElementsByName(`${a.eleTag}-span`);
-                for( let i = 0; i < eleArr.length; i++ ) {
-
-                    eleArr[i].innerHTML = a.msg;
-                    eleArr[i].style.display = 'inline';
-
-                }
-            }
+            let ele = document.getElementById(`${a.id}-span`);
+            ele.innerHTML = a.msg;
+            ele.style.display = 'inline';
         }
     }
 
@@ -34,7 +23,7 @@ let handleSubmit = function(err) {
 let handleSingleInput = function( nameValue, message, success, isName = false ) {
     
     if( isName ) {
-        var ele = document.getElementsByName(`${nameValue}-span`);
+        let ele = document.getElementsByName(`${nameValue}-span`);
         if( success ) {
             for(let i = 0; i < ele.length; i++) {
                 console.log(notices['success']);
@@ -49,7 +38,7 @@ let handleSingleInput = function( nameValue, message, success, isName = false ) 
             ele[i].style.display = 'inline';
         }
     } else {
-        var ele = document.getElementById(`${nameValue}-span`);
+        let ele = document.getElementById(`${nameValue}-span`);
         if( success ) {
             console.log(notices['success']);
             ele.innerHTML = notices['success'];
