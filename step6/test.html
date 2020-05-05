@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./validator/util.js"></script>
+    <script src="./validator/noticeHandler.js"></script>
+    <script src="./validator/rules&static.js"></script>
+    <script src="./validator/validator.js"></script>
+</head>
+
+<body>
+    <div id="form-div">
+        <table id="newtable">
+            <form action="pass.html" method="post" id="example_form">
+                <tr>
+                    <td>邮箱验证</td>
+                    <td><input type="text" id="email-1" ></td>
+                    <td><span style="color:red;font-size: 12px;display: none;" class="tishi" id = "email-1-span"></span></td>
+                </tr>
+                <tr>
+                    <td>密码</td>
+                    <td><input type="text" id="password-1"></td>
+                    <td><span style="color:red;font-size: 12px;display: none;" class="tishi" id = "password-1-span">  </span></td>
+                </tr>
+                <tr>
+                    <td>重复密码</td>
+                    <td><input type="text" id="repassword-1" name="repassword"></td>
+                    <td><span style="color:red;font-size: 12px;display: none;" class="tishi" id = "repassword-1-span"> </span></td>
+                </tr>
+                <tr>
+                    <td>电话</td>
+                    <td><input type="text" id="phone"></td>
+                    <td><span style="color:red;font-size: 12px;display: none;" class="tishi" id = "phone-span"> </span></td>
+                </tr>
+                <tr>
+                    <td>性别</td>
+                    <td>
+                        <input type="radio" name="sex">男
+                        <input type="radio" name="sex">女
+                    </td>
+                    <td><span style="color:red;font-size: 12px;display: none;" class="tishi" id = "sex-span"> </span></td>
+                </tr>
+                <tr>
+                    <td>兴趣爱好</td>
+                    <td>
+                        <input type="checkbox" name="newcheckbox" >旅游
+                        <input type="checkbox" name="newcheckbox" >汽车
+                        <input type="checkbox" name="newcheckbox" >购物
+                    </td>
+                    <td><span style="color:red;font-size: 12px;display: none;" class="tishi" id = "newcheckbox-span"> </span></td>
+                </tr>
+                <tr>
+                    <td>所在地区： </td>
+                    <td>省
+                    <select>
+                    <option>黑龙江</option>
+                    <option>河北省</option>
+                    <option>河南省</option>
+                    </select>
+                    </td>
+                    <td>市
+                    <select>
+                    <option>长沙市</option>
+                    <option>永州市</option>
+                    <option>株洲市</option>
+                    </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button type="submit" id = "newbutton-1" >提交</button>
+                    </td>
+                </tr>
+            </form>
+        </table>
+    </div>  
+</body>
+<script async type="text/javascript" >
+
+    let v = new Validator({ formId: "example_form", submitId: "newbutton-1"}, [
+        {
+            id: 'email-1',
+            msg: {isEmail: '请输入合法的邮箱地址!'},
+            rules: 'required|isEmail',
+        },
+        {
+            id: 'password-1',
+            msg: { isPassword: '请输入合法的密码!长度应在6-30位包含数字和字母。', check_password: 'Please choose a stronger password using at least 10 letters.'},
+            rules: 'required|isPassword|callback_check_password',
+        },
+        {
+            id: 'phone',
+            msg: { check_phone: 'Please enter correct phone number.'},
+            rules: '!callback_check_phone(11)',
+        },
+        {
+            id: 'repassword-1',
+            msg: { equal: '两次密码输入需一致' },
+            rules: 'required|equal(password-1)',
+        },
+        {
+            name: 'sex',
+            rules: 'required',
+        },
+        {
+            name: 'newcheckbox',
+            rules: 'required',
+        }
+    ], function(err, evt){
+        console.log('lalallaala');
+    });
+    function passwordIsStrong(value) {
+        if(value.length < 10) return false;
+        return true;
+    }
+    v.registerCallback('check_password', function(value) {
+        if (passwordIsStrong(value)) {
+            return true;
+        }
+
+        return false;
+    })
+    v.registerCallback('check_phone', function(fieldVaule, length) {
+        if (!regexs.numeric.test(length)) {
+            return false;
+        }
+        return (fieldVaule.length === parseInt(length, 10));
+    })
+    // v.setMessage('check_password', 'Please choose a stronger password using at least 10 letters.');
+    
+    // 调用者处理表单提交事件
+    let myfun = function (event) {
+        v.validate();
+    }
+    </script>
+</html>
