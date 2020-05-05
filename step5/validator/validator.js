@@ -1,7 +1,7 @@
 
 // todo: 添加全局调试开关和仅校验开关
 const DEBUG = true;
-const ONLY_VALIDATE = true;
+const ONLY_VALIDATE = false;
 
 let Validator = function(formInfo, customRules, callback = "") {
     
@@ -27,10 +27,11 @@ let Validator = function(formInfo, customRules, callback = "") {
     if( !checkCustomRules(customRules)) return;
     
 
-    // 添加表单、 id 提交按钮 id 、验证字段、callback
+    // 添加表单、 id 提交按钮 id 、验证字段、callback、handler
     this.formId = formId;
     this.submitId = submitId;
     this.form = document.forms[formId];
+    this.handlers = {};
     for(let item of customRules) {
 
         addField(this, item);
@@ -42,13 +43,10 @@ let Validator = function(formInfo, customRules, callback = "") {
     this.form.onsubmit = (function(that) {
         return function(evt) {
             try {
-                console.log('hahhahaha');
-                // fixme: 条件拦截改回去
-                that.validateForm(evt);
-                
-                return this.formId === "111" &&(_onsubmit === undefined || _onsubmit());
+                console.log('hahhahaha');      
+                return that.validateForm(evt) && ( _onsubmit === undefined || _onsubmit());
             } catch(e) {
-                evt.preventDefault();
+                console.error(e);
             }
         };
     })(this);
@@ -63,11 +61,12 @@ Validator.prototype = {
 
         this.errors.clear();
         console.log('>>>>> submit event triggered');
+        console.log(evt);
         // let form = this.form;
         
         for (let key in this.fields) {
             if(this.fields.hasOwnProperty(key)){
-                if( DEBUG ) console.log(key);
+                if( DEBUG ) console.log(`validating ${key}`);
                 let field = this.fields[key];
                 let eleTag = field.hasOwnProperty('id') ? field.id : field.name;
                 let element = this.form[eleTag];
@@ -82,13 +81,25 @@ Validator.prototype = {
                 }
             }
         }
-        
-        // if( this.callback === ""){
-        //     handleSubmit(error);
-        // } else {
-        //     this.callback(error, evt);
-        // }
-        handleSubmit(this.errors);
+
+        if (typeof this.callback === 'function') {
+            console.log('callback invoked!')
+            this.callback(this.errors, evt);
+        }
+       
+        if( !ONLY_VALIDATE ) handleSubmit(this.errors);
+
+        if (this.errors.size > 0) {
+            if (evt && evt.preventDefault) {
+                evt.preventDefault();
+                return false;
+            } else if (event) {
+                // 适配 IE 
+                event.returnValue = false;
+                return false;
+            }
+        }
+        return true;
 
     },
     blurValidate: function( eleTag, isName = false ) {
@@ -98,17 +109,20 @@ Validator.prototype = {
         let element = this.form[eleTag];
         field.fieldValue = attributeValue(element, 'value');
         field.checked = attributeValue(element, 'checked');
+        field.element = element;
         // let msg = field.msg;
         // let rules = field.rules.slice(0);
         // let inputName = isName ? field.name : field.id;
         this.errors.delete(eleTag);
         this._validateField(field);
+
+        if( ONLY_VALIDATE ) return;
+
         if( this.errors.has(eleTag) ) {
             handleSingleInput(field, this.errors);
         } else {
             handleSingleInput(field, this.errors, true);
         }
-        
         return;
     },
     _validateField: function(field) {
@@ -170,8 +184,7 @@ Validator.prototype = {
 
                 let existingError = this.errors.get(eleTag);
                 if( existingError ) return;
-
-                let message = method === 'required' ? notices['required'] : field.msg;
+                let message = field.msg[method] || notices[method];
                 let errorObject = {
                     id: field.id,
                     msg: message,
@@ -195,7 +208,13 @@ Validator.prototype = {
             this.handlers[name] = handler;
         }
         return this;
-    }
+    },
+    setMessage: function(rule, message) {
+        notices[rule] = message;
+
+        // return this for chaining
+        return this;
+    },
 
 }
 
@@ -226,7 +245,6 @@ Validator.prototype._testHooks = {
     equal: function (field, newField) {
         let ele = this.form[newField];
         if(ele) {
-            console.log(field, ele);
             return field.fieldValue === ele.value;
         }
         return false;

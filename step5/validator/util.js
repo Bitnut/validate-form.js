@@ -67,8 +67,7 @@ let addField = function( self, field ){
 
         id: field.id ? field.id : null,
         name: field.name ? field.name : null,
-        msg: field.msg? field.msg : notices[field.category],
-        category: field.category? field.category : null,
+        msg: field.msg,
         rules: null,
         fieldValue: null,
         element: null,
@@ -89,8 +88,9 @@ let addField = function( self, field ){
         if( field.id ) {
             
             console.log(`>>>>> adding id ${field.id}`);
-            document.getElementById(field.id).addEventListener("blur", function() {
-                
+            document.getElementById(field.id).addEventListener("blur", function(evt) {
+                console.log('here');
+                console.log(window.event, event, evt);
                 self.blurValidate( field.id );
                 // 如果点击了提交按钮，处理提交事件
                 if(window.event.relatedTarget && window.event.relatedTarget.id === self.submitId) {

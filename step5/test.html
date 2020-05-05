@@ -12,22 +12,63 @@
 
 <body>
     <div id="form-div">
-        <form  method="post" id="example_form"  onsubmit="return myfun('example_form')">
-            <div><label for="email">邮箱验证</label><input type="text" id="email-1" ></div>
-            <span style="color:red;font-size: 12px;display: none;" class="tishi" id = "email-1-span">  
-                必须两位字符及以上
-            </span>
-            <div><label for="password">密码</label><input type="text" id="password-1"></div>
-            <span style="color:red;font-size: 12px;display: none;" class="tishi" id = "password-1-span">  
-                密码格式不正确
-            </span>
-            <div><label for="repassword">重复密码</label><input type="text" id="repassword-1" name="repassword"></div>
-            <span style="color:red;font-size: 12px;display: none;" class="tishi" id = "repassword-1-span"> 
-                两次密码输入需一致
-            </span>
-            <button type="submit" id = "newbutton-1" >提交</button>
-            <button type="button" id = "newbutton-2" onclick="myfun()" >提交</button>
-        </form>
+        <table id="newtable">
+            <form action="pass.html" method="post" id="example_form">
+                <tr>
+                    <td>邮箱验证</td>
+                    <td><input type="text" id="email-1" ></td>
+                    <td><span style="color:red;font-size: 12px;display: none;" class="tishi" id = "email-1-span"></span></td>
+                </tr>
+                <tr>
+                    <td>密码</td>
+                    <td><input type="text" id="password-1"></td>
+                    <td><span style="color:red;font-size: 12px;display: none;" class="tishi" id = "password-1-span">  </span></td>
+                </tr>
+                <tr>
+                    <td>重复密码</td>
+                    <td><input type="text" id="repassword-1" name="repassword"></td>
+                    <td><span style="color:red;font-size: 12px;display: none;" class="tishi" id = "repassword-1-span"> </span></td>
+                </tr>
+                <tr>
+                    <td>性别</td>
+                    <td>
+                        <input type="radio" name="sex">男
+                        <input type="radio" name="sex">女
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>兴趣爱好</td>
+                    <td>
+                        <input type="checkbox" name="newcheckbox" >旅游
+                        <input type="checkbox" name="newcheckbox" >汽车
+                        <input type="checkbox" name="newcheckbox" >购物
+                    </td>
+                </tr>
+                <tr>
+                    <td>所在地区： </td>
+                    <td>省
+                    <select>
+                    <option>黑龙江</option>
+                    <option>河北省</option>
+                    <option>河南省</option>
+                    </select>
+                    </td>
+                    <td>市
+                    <select>
+                    <option>长沙市</option>
+                    <option>永州市</option>
+                    <option>株洲市</option>
+                    </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button type="submit" id = "newbutton-1" >提交</button>
+                    </td>
+                </tr>
+            </form>
+        </table>
     </div>  
 </body>
 <script async type="text/javascript" >
@@ -35,24 +76,34 @@
     let v = new Validator({ formId: "example_form", submitId: "newbutton-1"}, [
         {
             id: 'email-1',
-            msg: '请输入合法的邮箱地址!',
-            category: 'email',
+            msg: {isEmail: '请输入合法的邮箱地址!'},
             rules: 'required|isEmail',
         },
         {
             id: 'password-1',
-            msg: '请输入合法的密码!长度应在6-30位包含数字和字母。',
-            category: 'password',
-            rules: 'required|isPassword',
+            msg: { isPassword: '请输入合法的密码!长度应在6-30位包含数字和字母。', check_password: 'Please choose a stronger password using at least 10 letters.'},
+            rules: 'required|isPassword|callback_check_password',
         },
         {
             id: 'repassword-1',
-            msg: '两次密码输入需一致',
-            category: 'repassword',
+            msg: { equal: '两次密码输入需一致' },
             rules: 'required|equal(password-1)',
         }
-    ]);
-    
+    ], function(err, evt){
+        console.log('lalallaala');
+    });
+    function passwordIsStrong(value) {
+        if(value.length < 10) return false;
+        return true;
+    }
+    v.registerCallback('check_password', function(value) {
+        if (passwordIsStrong(value)) {
+            return true;
+        }
+
+        return false;
+    })
+    // v.setMessage('check_password', 'Please choose a stronger password using at least 10 letters.');
     
     // 调用者处理表单提交事件
     let myfun = function (event) {

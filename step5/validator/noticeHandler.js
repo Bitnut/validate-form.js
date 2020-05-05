@@ -56,7 +56,7 @@ let handleSingleInput = function( field, errors, success = false, isName = false
             ele.style.display = 'inline';
             return;
         }
-        console.log(errObject.msg);
+        console.log(errObject);
         ele.innerHTML = errObject.msg;
         ele.style.display = 'inline';
     }
