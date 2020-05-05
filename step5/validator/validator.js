@@ -1,11 +1,16 @@
-const Validator = function(formInfo, customRules, callback = "") {
+
+// todo: 添加全局调试开关和仅校验开关
+const DEBUG = true;
+const ONLY_VALIDATE = true;
+
+let Validator = function(formInfo, customRules, callback = "") {
     
     // 不传参的简单用法
     if (!formInfo) return this;
 
     // 保存页面的所有待验证 field 的信息
     this.fields = {}
-    this.errors = []
+    this.errors = new Map();
 
     let formId = formInfo.formId;
     let submitId = formInfo.submitId;
@@ -23,7 +28,7 @@ const Validator = function(formInfo, customRules, callback = "") {
     
 
     // 添加表单、 id 提交按钮 id 、验证字段、callback
-    this.formId = formId;   
+    this.formId = formId;
     this.submitId = submitId;
     this.form = document.forms[formId];
     for(let item of customRules) {
@@ -56,13 +61,13 @@ Validator.prototype = {
     // 表单验证
     validateForm: function(evt) {
 
-        this.errors = [];
+        this.errors.clear();
         console.log('>>>>> submit event triggered');
         // let form = this.form;
         
         for (let key in this.fields) {
             if(this.fields.hasOwnProperty(key)){
-                console.log(key);
+                if( DEBUG ) console.log(key);
                 let field = this.fields[key];
                 let eleTag = field.hasOwnProperty('id') ? field.id : field.name;
                 let element = this.form[eleTag];
@@ -86,14 +91,38 @@ Validator.prototype = {
         handleSubmit(this.errors);
 
     },
+    blurValidate: function( eleTag, isName = false ) {
+        console.log('>>>>> onblur event triggered');
+
+        let field = this.fields[eleTag];
+        let element = this.form[eleTag];
+        field.fieldValue = attributeValue(element, 'value');
+        field.checked = attributeValue(element, 'checked');
+        // let msg = field.msg;
+        // let rules = field.rules.slice(0);
+        // let inputName = isName ? field.name : field.id;
+        this.errors.delete(eleTag);
+        this._validateField(field);
+        if( this.errors.has(eleTag) ) {
+            handleSingleInput(field, this.errors);
+        } else {
+            handleSingleInput(field, this.errors, true);
+        }
+        
+        return;
+    },
     _validateField: function(field) {
+
         let rules = field.rules;
         let indexOfRequired = rules.indexOf('required');
+        let eleTag = field.hasOwnProperty('id') ? field.id : field.name;
         
         let isEmpty = !field.fieldValue;
-        
+
+
         //遍历 field 的所有规则，并解析需要传参的函数
-        for (let i = 0; i < rules.length; i++) {    
+        for (let i = 0; i < rules.length; i++) {   
+            
             let method = rules[i];
             let param = null;
             let failed = false;
@@ -139,53 +168,32 @@ Validator.prototype = {
             // 处理校验错误，写在前面的规则优先级高于后面的规则
             if (failed) {
 
-                var existingError;
-                for (let j = 0; j < this.errors.length; j++) {
-                    if (field.id === this.errors[j].id) {
-                        existingError = this.errors[j];
-                    }
-                }
-                var errorObject = existingError || {
+                let existingError = this.errors.get(eleTag);
+                if( existingError ) return;
+
+                let message = method === 'required' ? notices['required'] : field.msg;
+                let errorObject = {
                     id: field.id,
-                    msg: field.msg,
+                    msg: message,
                     element: field.element,
                     name: field.name,
                     rule: method
                 };
                 
-                if (!existingError) this.errors.push(errorObject);
+                if (!existingError) {
+                    this.errors.set(eleTag, errorObject);
+                }
             }
         }
     },
-    
-    blurValidate: function( eleTag, isName = false ) {
-        console.log('>>>>> onblur event triggered');
-
-        let field = this.fields[eleTag];
-        let element = this.form[eleTag];
-        field.fieldValue = attributeValue(element, 'value');
-        field.checked = attributeValue(element, 'checked');
-        // let msg = field.msg;
-        // let rules = field.rules.slice(0);
-        // let inputName = isName ? field.name : field.id;
-        for(let i = 0; i < this.errors.length; i++) {
-            if(this.errors[i].id === eleTag) {
-                console.log(this.errors[i].id);
-                this.errors.splice(i, 1);
-                break;
-            }
-        }
-        this._validateField(field);
-        handleSingleInput(field);
-        return;
+    check: function(rule, stringToValidate) {
+        let fun = this._testHooks[rule];
+        return fun(stringToValidate, true);
     },
-
-    
     registerCallback: function(name, handler) {
         if (name && typeof name === 'string' && handler && typeof handler === 'function') {
             this.handlers[name] = handler;
         }
-        
         return this;
     }
 
@@ -201,17 +209,27 @@ Validator.prototype._testHooks = {
 
         return (value !== null && value !== '');
     },
-    isEmail: function(field) {
-        return regexs.email.test( field.fieldValue );
+    isEmail: function(field, check = false) {
+        if(check) {
+            return regexs.email.test( field );
+        } else {
+            return regexs.email.test( field.fieldValue );
+        }
     },
-    isPassword: function(field) {
-        return regexs.password.test( field.fieldValue );
+    isPassword: function(field, check = false) {
+        if(check) {
+            return regexs.password.test( field );
+        } else {
+            return regexs.password.test( field.fieldValue );
+        }
     },
     equal: function (field, newField) {
-        let value1 = field;
-        let value2 = this.fields[newField].fieldValue;
-
-        return value1 == value2;
+        let ele = this.form[newField];
+        if(ele) {
+            console.log(field, ele);
+            return field.fieldValue === ele.value;
+        }
+        return false;
     }
 
 }

@@ -1,22 +1,23 @@
-// todo: 添加成功状态的处理
+// done: 添加成功状态的处理
 // 处理整个表单状态的接口函数
 let handleSubmit = function(err) {
 
-    console.log( 'handling error msg' );
-    if(err.length === 0) {
+    if( DEBUG ) console.log( 'handling error msg' );
+    if(err.size === 0) {
 
-        console.log('>>>>>> success：表单没有发现错误！>>>>>>');
+        if( DEBUG ) console.log('>>>>>> success：表单没有发现错误！>>>>>>');
 
     } else {
-        console.log(err);
-        for(let a of err) {
+
+        for(let errObject of err.values()) {
+            console.log(errObject);
             let errmsg;
-            if(a.rule === 'required') {
-                errmsg = notices[a.rule]; 
+            if(errObject.rule === 'required') {
+                errmsg = notices['required']; 
             } else {
-                errmsg = a.msg;
+                errmsg = errObject.msg;
             }
-            let ele = document.getElementById(`${a.id}-span`);
+            let ele = document.getElementById(`${errObject.id}-span`);
             ele.innerHTML = errmsg;
             ele.style.display = 'inline';
         }
@@ -26,7 +27,8 @@ let handleSubmit = function(err) {
 
 // 动态表单验证模块，控件失去焦点时触发
 // 处理单个 input 元素状态的接口函数
-let handleSingleInput = function( field, success = false, isName = false ) {
+// fixme: success 不再需要
+let handleSingleInput = function( field, errors, success = false, isName = false ) {
     
     if( isName ) {
         let ele = document.getElementsByName(`${nameValue}-span`);
@@ -44,17 +46,21 @@ let handleSingleInput = function( field, success = false, isName = false ) {
             ele[i].style.display = 'inline';
         }
     } else {
+        
+
         let ele = document.getElementById(`${field.id}-span`);
-        if( success ) {
+        let errObject = errors.get(field.id);
+        if( !errObject ) {
             console.log(notices['success']);
             ele.innerHTML = notices['success'];
             ele.style.display = 'inline';
             return;
         }
-        console.log(field.msg);
-        ele.innerHTML = field.msg;
+        console.log(errObject.msg);
+        ele.innerHTML = errObject.msg;
         ele.style.display = 'inline';
     }
+    return;
 
 }
 

@@ -2,9 +2,9 @@
 
 - [x] 修复 onblur() 和 onclick()/onsubmit() 冲突 bug
 - [x] 遍历 form 处取消写死 // 逻辑从遍历界面表单元素转为遍历绑定好的规则元素
-- [ ] 重构 validate 函数
+- [x] 重构 validate 函数
 - [ ] 支持 CheckBox & radio 组件
-- [ ] 重新编写直接调用的方法 example: v.check('isEmail', '@qq.com');
+- [x] 重新编写直接调用的方法 example: v.check('isEmail', '@qq.com');
 - [ ] 为自定义需求注册规则
 - [ ] 为表单做函数验证
 - [ ] 统一做回调验证
