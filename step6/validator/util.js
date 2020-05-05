@@ -48,6 +48,7 @@ let checkCustomRules = function(customRules) {
 
 function attributeValue(element, attributeName) {
     var i;
+    console.log(element);
     if ((element.length > 0) && (element[0].type === 'radio' || element[0].type === 'checkbox')) {
         for (i = 0; i < element.length; i++) {
             if (element[i].checked) {
@@ -62,15 +63,18 @@ function attributeValue(element, attributeName) {
 // 为验证组件添加待校验元素，这里称为 field
 let addField = function( self, field ){
     let nameValue = field.id ? field.id : field.name;
-    console.log('>>>>> adding field');
+    if( DEBUG ) {
+        console.log('>>>>> adding field');
+        console.log(field);
+    }
     self.fields[nameValue] = {
 
         id: field.id ? field.id : null,
         name: field.name ? field.name : null,
         msg: field.msg,
+        element: null,
         rules: null,
         fieldValue: null,
-        element: null,
         type: null,
         checked: null,
         onblur: field.onblur ? field.onblur : true
@@ -87,7 +91,7 @@ let addField = function( self, field ){
 
         if( field.id ) {
             
-            console.log(`>>>>> adding id ${field.id}`);
+            if( DEBUG ) console.log(`adding id ${field.id}`);
             document.getElementById(field.id).addEventListener("blur", function(evt) {
                 console.log('here');
                 console.log(window.event, event, evt);
@@ -100,17 +104,17 @@ let addField = function( self, field ){
 
         } else {
 
-            console.log(`>>>>> adding name ${field.name}`);
+            if( DEBUG ) console.log(`adding name ${field.name}`);
             let target = document.getElementsByName(field.name);
             for(let i = 0; i < target.length; i++) {
                 document.getElementsByName(field.name)[i].addEventListener("blur", function() {
                     self.blurValidate( field.name, true);
+                    if(window.event.relatedTarget && window.event.relatedTarget.id === self.submitId) { 
+                        self.validateForm();
+                    }
                 }, true);
             }
-            if(window.event.relatedTarget && window.event.relatedTarget.id === submitId) {
-                self.validateForm();
-            }
-            
+
         }
     }
     

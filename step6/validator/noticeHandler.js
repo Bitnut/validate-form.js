@@ -9,15 +9,15 @@ let handleSubmit = function(err) {
 
     } else {
 
-        for(let errObject of err.values()) {
-            console.log(errObject);
+        for(let [eleTag, errObject] of err) {
+            if( DEBUG ) console.log(errObject);
             let errmsg;
             if(errObject.rule === 'required') {
                 errmsg = notices['required']; 
             } else {
                 errmsg = errObject.msg;
             }
-            let ele = document.getElementById(`${errObject.id}-span`);
+            let ele = document.getElementById(`${eleTag}-span`);
             ele.innerHTML = errmsg;
             ele.style.display = 'inline';
         }
@@ -28,38 +28,20 @@ let handleSubmit = function(err) {
 // 动态表单验证模块，控件失去焦点时触发
 // 处理单个 input 元素状态的接口函数
 // fixme: success 不再需要
-let handleSingleInput = function( field, errors, success = false, isName = false ) {
-    
-    if( isName ) {
-        let ele = document.getElementsByName(`${nameValue}-span`);
-        if( success ) {
-            for(let i = 0; i < ele.length; i++) {
-                console.log(notices['success']);
-                ele[i].innerHTML = notices['success'];
-                ele[i].style.display = 'inline';
-            }
-            return;
-        }
-        for(let i = 0; i < ele.length; i++) {
-            console.log(message);
-            ele[i].innerHTML = message;
-            ele[i].style.display = 'inline';
-        }
-    } else {
-        
+let handleSingleInput = function( nameValue, errors, success = false, isName = false ) {
 
-        let ele = document.getElementById(`${field.id}-span`);
-        let errObject = errors.get(field.id);
-        if( !errObject ) {
-            console.log(notices['success']);
-            ele.innerHTML = notices['success'];
-            ele.style.display = 'inline';
-            return;
-        }
-        console.log(errObject);
-        ele.innerHTML = errObject.msg;
+    console.log(errors);
+    let ele = document.getElementById(`${nameValue}-span`);
+    let errObject = errors.get(nameValue);
+    if( !errObject ) {
+        console.log(notices['success']);
+        ele.innerHTML = notices['success'];
         ele.style.display = 'inline';
+        return;
     }
+    console.log(errObject);
+    ele.innerHTML = errObject.msg;
+    ele.style.display = 'inline';
     return;
 
 }

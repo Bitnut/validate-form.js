@@ -3,6 +3,8 @@ const regexs = {
     method: /^(.+?)\((.+)\)$/,
     email:/^(?:\w+\.?)*\w+@(?:\w+\.)+\w+$/,
     password: /^[0-9a-zA-Z]{6,30}$/,
+    numeric: /^[0-9]+$/,
+    integer: /^\-?[0-9]+$/
 
 }
 

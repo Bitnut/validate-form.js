@@ -1,7 +1,31 @@
-
 // todo: 添加全局调试开关和仅校验开关
 const DEBUG = true;
 const ONLY_VALIDATE = false;
+
+
+/**
+ * 
+ * 数据结构说明：
+ * 
+ * @param {Object[]} fields             保存所有的待调试 field 信息
+ * @param {string} fields.key           保存的 field 标识名：eleTag
+ * @param {string} fields[].id          field 的 id 属性
+ * @param {string} fields[].name        field 的 name 属性
+ * @param {Object} fields[].msg         所有需要自定义的提示信息
+ * @param {string} fields[].element     field 的实时 dom 对象
+ * @param {string} fields[].rules       指定的规则
+ * @param {string} fields[].fieldValue  field 的实时值
+ * @param {string} fields[].type        field 的类型
+ * @param {string} fields[].checked     是否被选中（处理 CheckBox 和 radio）
+ * @param {string} fields[].onblur      是否需要动态验证
+ * 
+ * @param {Map[]} errors                保存所有实时错误
+ * @param {Map[]} errors.key            填写错误的 field 标识名：eleTag
+ * @param {Map[]} errors[].msg          需要输出的错误信息
+ * @param {Map[]} errors[].element      填写错误的 field 的 dom 对象
+ * @param {Map[]} errors[].rule         出错的规则
+ * 
+ */
 
 let Validator = function(formInfo, customRules, callback = "") {
     
@@ -25,7 +49,6 @@ let Validator = function(formInfo, customRules, callback = "") {
     }
     // 对传入的 customRules 作校验
     if( !checkCustomRules(customRules)) return;
-    
 
     // 添加表单、 id 提交按钮 id 、验证字段、callback、handler
     this.formId = formId;
@@ -33,25 +56,29 @@ let Validator = function(formInfo, customRules, callback = "") {
     this.form = document.forms[formId];
     this.handlers = {};
     for(let item of customRules) {
-
+        
         addField(this, item);
 
     }
     this.callback = callback;
     
-    let _onsubmit = this.form.onsubmit;
+    //let _onsubmit = this.form.onsubmit;
+    
     this.form.onsubmit = (function(that) {
         return function(evt) {
-            try {
-                console.log('hahhahaha');      
-                return that.validateForm(evt) && ( _onsubmit === undefined || _onsubmit());
+            try {     
+                return that.validateForm(evt);
             } catch(e) {
                 console.error(e);
+                evt.preventDefault();
             }
         };
     })(this);
+    if( DEBUG ) {
+        console.log('>>>>>> initalize complete');
+        console.log(this.fields);
+    } 
     
-    console.log(this.fields);
 }
 
 Validator.prototype = {
@@ -61,22 +88,25 @@ Validator.prototype = {
 
         this.errors.clear();
         console.log('>>>>> submit event triggered');
-        console.log(evt);
         // let form = this.form;
         
         for (let key in this.fields) {
             if(this.fields.hasOwnProperty(key)){
-                if( DEBUG ) console.log(`validating ${key}`);
+                
                 let field = this.fields[key];
-                let eleTag = field.hasOwnProperty('id') ? field.id : field.name;
+                let eleTag = field.id ? field.id : field.name;
                 let element = this.form[eleTag];
+
+                if( DEBUG ) {
+                    console.log(`validating ${key}`);
+                    console.log(element);
+                }
 
                 if (element && element !== undefined) {
                     field.element = element;
                     field.type = (element.length > 0) ? element[0].type : element.type;
                     field.fieldValue = attributeValue(element, 'value');
                     field.checked = attributeValue(element, 'checked');
-
                     this._validateField(field);
                 }
             }
@@ -107,21 +137,21 @@ Validator.prototype = {
 
         let field = this.fields[eleTag];
         let element = this.form[eleTag];
+        field.type = (element.length > 0) ? element[0].type : element.type;
         field.fieldValue = attributeValue(element, 'value');
         field.checked = attributeValue(element, 'checked');
         field.element = element;
-        // let msg = field.msg;
-        // let rules = field.rules.slice(0);
-        // let inputName = isName ? field.name : field.id;
         this.errors.delete(eleTag);
         this._validateField(field);
 
         if( ONLY_VALIDATE ) return;
 
+        let nameValue = isName ? field.name : field.id;
+        console.log(nameValue);
         if( this.errors.has(eleTag) ) {
-            handleSingleInput(field, this.errors);
+            handleSingleInput(nameValue, this.errors);
         } else {
-            handleSingleInput(field, this.errors, true);
+            handleSingleInput(nameValue, this.errors, true);
         }
         return;
     },
@@ -129,7 +159,7 @@ Validator.prototype = {
 
         let rules = field.rules;
         let indexOfRequired = rules.indexOf('required');
-        let eleTag = field.hasOwnProperty('id') ? field.id : field.name;
+        let eleTag = field.id ? field.id : field.name;
         
         let isEmpty = !field.fieldValue;
 
@@ -154,7 +184,7 @@ Validator.prototype = {
             // 如果是传参函数，将函数名和形参分离
             if (parts) {
                 method = parts[1];
-                param = parts[2];
+                param = parts[2];   
             }
 
             if (method.charAt(0) === '!') {
@@ -184,12 +214,19 @@ Validator.prototype = {
 
                 let existingError = this.errors.get(eleTag);
                 if( existingError ) return;
-                let message = field.msg[method] || notices[method];
+
+                let message = "";
+                if( field.msg ) {
+                    message = field.msg[method] || notices[method];
+                } else {
+                    message = notices[method];
+                }
+                
                 let errorObject = {
-                    id: field.id,
+                    //id: field.id,
                     msg: message,
                     element: field.element,
-                    name: field.name,
+                    //name: field.name,
                     rule: method
                 };
                 
@@ -222,6 +259,7 @@ Validator.prototype._testHooks = {
     
     required: function(field) {
         var value = field.fieldValue;
+        console.log(field);
         if ((field.type === 'checkbox') || (field.type === 'radio')) {
             return (field.checked === true);
         }
