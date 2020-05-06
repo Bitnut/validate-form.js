@@ -54,19 +54,14 @@
                 <tr>
                     <td>所在地区： </td>
                     <td>省
-                    <select>
-                    <option>黑龙江</option>
-                    <option>河北省</option>
-                    <option>河南省</option>
-                    </select>
-                    </td>
-                    <td>市
-                    <select>
-                    <option>长沙市</option>
-                    <option>永州市</option>
-                    <option>株洲市</option>
-                    </select>
-                    </td>
+                        <select id="sheng">
+                            <option>dd</option>
+                            <option>黑龙江</option>
+                            <option>河北省</option>
+                            <option>河南省</option>
+                        </select>
+                        </td>
+                        <td><span style="color:red;font-size: 12px;display: none;" class="tishi" id = "sheng-span"> </span></td>
                 </tr>
                 <tr>
                     <td>
@@ -87,7 +82,7 @@
         },
         {
             id: 'password-1',
-            msg: { isPassword: '请输入合法的密码!长度应在6-30位包含数字和字母。', check_password: 'Please choose a stronger password using at least 10 letters.'},
+            msg: { isPassword: '请输入合法的密码!长度应在6-30位包含数字和字母。'},
             rules: 'required|isPassword|callback_check_password',
         },
         {
@@ -107,32 +102,33 @@
         {
             name: 'newcheckbox',
             rules: 'required',
+        },
+        {
+            id: 'sheng',
+            rules: 'default(dd)'
         }
     ], function(err, evt){
-        console.log('lalallaala');
+        console.log('lllllllllllllllllllllll');
     });
     function passwordIsStrong(value) {
         if(value.length < 10) return false;
         return true;
     }
+
     v.registerCallback('check_password', function(value) {
         if (passwordIsStrong(value)) {
             return true;
         }
 
         return false;
-    })
+    }).setMessage('check_password', 'Please choose a stronger password using at least 111 letters.');
+    // setMessage('check_password', 'Please choose a stronger password using at least 111 letters.');
+    
     v.registerCallback('check_phone', function(fieldVaule, length) {
         if (!regexs.numeric.test(length)) {
             return false;
         }
         return (fieldVaule.length === parseInt(length, 10));
     })
-    // v.setMessage('check_password', 'Please choose a stronger password using at least 10 letters.');
-    
-    // 调用者处理表单提交事件
-    let myfun = function (event) {
-        v.validate();
-    }
     </script>
 </html>

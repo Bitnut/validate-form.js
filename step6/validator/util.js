@@ -1,25 +1,34 @@
-// 为validator 实例绑定函数时对函数名做适当处理
-let camelCase = function(string){ 
+// 初始化传参验证
+let initCheck = function(formInfo, customRules, callback) {
+    let flag = true;
 
-    return string.replace( /\_([a-z])/g, function( word, letterToReplace ) {
+    if( !checkFormInfo(formInfo) ) flag = false;  
+    if( !checkCustomRules(customRules)) flag = false;;
+    // 检查 callback 类型
+    if( typeof callback !== 'function') {
+        console.error( `>>>>>> 传入的回调类型不是函数，请检查传参！>>>>>>`);
+        flag = false;
+    }
+    return flag;
+}
+// 校验表单信息
+let checkFormInfo = function(formInfo) {
 
-        return letterToReplace.toUpperCase();
-
-    });
+    let formId = formInfo.formId;
+    let submitId = formInfo.submitId;
+    // 检验传入表单名字、提交按钮是否合法
+    if ( !document.getElementById(formId)) {
+        console.error( `>>>>>> 指定表单: \[ ${formId} \] 不存在，请检查传参！>>>>>>`);
+        return false;
+    }
+    if ( !document.getElementById(submitId)) {
+        console.error( `>>>>>> 提交按钮 id: \[ ${submitId} \] 不存在，请检查传参！>>>>>>`);
+        return false;
+    }
+    return true;
 
 }
-
-// 为传入函数名作 testhook 匹配
-let underscoreCase = function(string){ 
-
-    return string.replace( /[A-Z]/g, function( letter ) {
-
-        return '_'+letter.toLowerCase();
-
-    });
-
-}
-// 校验调用者传入的规则
+// 对传入的 customRules 作校验
 let checkCustomRules = function(customRules) {
 
     for(let i = 0; i < customRules.length; i++) {
@@ -45,10 +54,9 @@ let checkCustomRules = function(customRules) {
     return true;
     
 }
-
+// 获取表单元素的特定属性
 function attributeValue(element, attributeName) {
     var i;
-    console.log(element);
     if ((element.length > 0) && (element[0].type === 'radio' || element[0].type === 'checkbox')) {
         for (i = 0; i < element.length; i++) {
             if (element[i].checked) {
@@ -65,7 +73,6 @@ let addField = function( self, field ){
     let nameValue = field.id ? field.id : field.name;
     if( DEBUG ) {
         console.log('>>>>> adding field');
-        console.log(field);
     }
     self.fields[nameValue] = {
 
@@ -93,8 +100,6 @@ let addField = function( self, field ){
             
             if( DEBUG ) console.log(`adding id ${field.id}`);
             document.getElementById(field.id).addEventListener("blur", function(evt) {
-                console.log('here');
-                console.log(window.event, event, evt);
                 self.blurValidate( field.id );
                 // 如果点击了提交按钮，处理提交事件
                 if(window.event.relatedTarget && window.event.relatedTarget.id === self.submitId) {
@@ -117,20 +122,27 @@ let addField = function( self, field ){
 
         }
     }
-    
-
-    // todo: 传入自定义的正则匹配规则
-    // for (let a in field) {
-
-    //   if (field.hasOwnProperty(a) && /^regexp\_/.test(a)) {
-
-    //     regexs[a] = field[a];
-
-    //   }
-
-    // }
 
 }
 
+// 为validator 实例绑定函数时对函数名做适当处理
+let camelCase = function(string){ 
 
+    return string.replace( /\_([a-z])/g, function( word, letterToReplace ) {
 
+        return letterToReplace.toUpperCase();
+
+    });
+
+}
+
+// 为传入函数名作 testhook 匹配
+let underscoreCase = function(string){ 
+
+    return string.replace( /[A-Z]/g, function( letter ) {
+
+        return '_'+letter.toLowerCase();
+
+    });
+
+}
