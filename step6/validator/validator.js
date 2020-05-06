@@ -1,4 +1,7 @@
-// todo: 添加全局调试开关和仅校验开关
+import { initCheck, addField, attributeValue } from './util.js'
+import { handleSubmit, handleSingleInput} from './noticeHandler.js'
+import { regexs, notices, defaultCallback} from './rules&static.js'
+
 const DEBUG = true;
 const ONLY_VALIDATE = false;
 
@@ -55,11 +58,11 @@ class Validator {
         this.callback = callback;
 
         // 提交拦截
-        //let _onsubmit = this.form.onsubmit;
+        let userOnSubmit = this.form.onsubmit;
         this.form.onsubmit = (function (that) {
             return function (evt) {
                 try {
-                    return that.validateForm(evt);
+                    return that.validateForm(evt) && ( !userOnSubmit || userOnSubmit());
                 }
                 catch (e) {
                     console.error(e);
@@ -86,17 +89,55 @@ class Validator {
     
             return (value !== null && value !== '');
         },
+        isUsername: function (field, check = false) {
+            let fieldValue = field;
+            if( !check ) fieldValue = field.fieldValue;
+            return regexs.username.test( fieldValue );
+        },
         isEmail: function(field, check = false) {
             let fieldValue = field;
             if( !check ) fieldValue = field.fieldValue;
             return regexs.email.test( fieldValue );
         },
         isPassword: function(field, check = false) {
-            if(check) {
-                return regexs.password.test( field );
-            } else {
-                return regexs.password.test( field.fieldValue );
-            }
+            let fieldValue = field;
+            if( !check ) fieldValue = field.fieldValue;
+            return regexs.password.test( fieldValue );
+        },
+        isNumeric: function(field, check = false) {
+            let fieldValue = field;
+            if( !check ) fieldValue = field.fieldValue;
+            return regexs.numeric.test( fieldValue );
+        },
+        isInteger: function(field, check = false) {
+            let fieldValue = field;
+            if( !check ) fieldValue = field.fieldValue;
+            return regexs.integer.test( fieldValue );
+        },
+        isNatural: function(field, check = false) {
+            let fieldValue = field;
+            if( !check ) fieldValue = field.fieldValue;
+            return regexs.natural.test( fieldValue );
+        },
+        isFloat: function(field, check = false) {
+            let fieldValue = field;
+            if( !check ) fieldValue = field.fieldValue;
+            return regexs.float.test( fieldValue );
+        },
+        isAlpha: function(field, check = false) {
+            let fieldValue = field;
+            if( !check ) fieldValue = field.fieldValue;
+            return regexs.alpha.test( fieldValue );
+        },
+        isAlphaNumeric: function(field, check = false) {
+            let fieldValue = field;
+            if( !check ) fieldValue = field.fieldValue;
+            return regexs.alphaNumeric.test( fieldValue );
+        },
+        isAlphaDash: function(field, check = false) {
+            let fieldValue = field;
+            if( !check ) fieldValue = field.fieldValue;
+            return regexs.alphaDash.test( fieldValue );
         },
         equal: function (field, newField) {
             let ele = this.form[newField];
@@ -304,3 +345,9 @@ Object.assign(Validator.prototype, {
     },
 
 })
+
+export {
+    DEBUG,
+    ONLY_VALIDATE,
+    Validator
+};

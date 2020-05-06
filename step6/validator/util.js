@@ -1,3 +1,5 @@
+import { DEBUG } from './validator.js'
+
 // 初始化传参验证
 let initCheck = function(formInfo, customRules, callback) {
     let flag = true;
@@ -145,4 +147,10 @@ let underscoreCase = function(string){
 
     });
 
+}
+
+export {
+    initCheck,
+    attributeValue,
+    addField,
 }

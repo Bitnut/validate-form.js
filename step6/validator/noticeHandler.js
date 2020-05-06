@@ -1,3 +1,5 @@
+import {DEBUG} from './validator.js'
+import {notices } from './rules&static.js'
 // 处理整个表单状态
 let handleSubmit = function(err) {
 
@@ -45,4 +47,9 @@ let handleSingleInput = function( nameValue, errors ) {
     ele.style.display = 'inline';
     return;
 
+}
+
+export {
+    handleSubmit,
+    handleSingleInput
 }
