@@ -127,28 +127,6 @@ let addField = function( self, field ){
 
 }
 
-// 为validator 实例绑定函数时对函数名做适当处理
-let camelCase = function(string){ 
-
-    return string.replace( /\_([a-z])/g, function( word, letterToReplace ) {
-
-        return letterToReplace.toUpperCase();
-
-    });
-
-}
-
-// 为传入函数名作 testhook 匹配
-let underscoreCase = function(string){ 
-
-    return string.replace( /[A-Z]/g, function( letter ) {
-
-        return '_'+letter.toLowerCase();
-
-    });
-
-}
-
 export {
     initCheck,
     attributeValue,

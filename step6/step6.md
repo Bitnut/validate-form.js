@@ -81,10 +81,10 @@ v.check('isPassword','94009');
         return false;
     }).setMessage('check_password', 'Please choose a stronger password using at least 111 letters.');
     ```
-    4. 修改 ONLY_VALIDATE 为 true 可以让组件只做验证，不对错误进行处理。
-
+    4. 修改 ONLY_VALIDATE 为 true 可以让组件只做验证，不对错误进行处理。修改 DEBUG 为 false 不输出调试信息
 
 * bug & 不支持的用法
     1. 不支持图片、文件拖拽/上传组件验证
     2. 未内置日期、信用卡等校验规则，需要自己提供回调验证
     3. 需要呈现想要的效果需要自己写回调或者修改 noticeHandler 组件
+    4. 暂时么有支持不同语言的内置提示文案

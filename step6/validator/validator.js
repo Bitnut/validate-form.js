@@ -171,11 +171,7 @@ class Validator {
             return (field.fieldValue.length === parseInt(length, 10));
         },
     }
-}
-
-Object.assign(Validator.prototype, {
-
-    _validateField: function(field) {
+    _validateField(field) {
 
         let rules = field.rules;
         let indexOfRequired = rules.indexOf('required');
@@ -255,9 +251,9 @@ Object.assign(Validator.prototype, {
                 }
             }
         }
-    },
+    }
     // 表单验证
-    validateForm: function(evt) {
+    validateForm(evt) {
 
         this.errors.clear();
         if( DEBUG ) console.log('>>>>> submit event triggered >>>>>>');
@@ -300,9 +296,9 @@ Object.assign(Validator.prototype, {
         }
         return true;
 
-    },
+    }
     // 动态验证
-    blurValidate: function( eleTag, isName = false ) {
+    blurValidate( eleTag, isName = false ) {
         if( DEBUG ) console.log('>>>>> onblur event triggered >>>>>>');
 
         let field = this.fields[eleTag];
@@ -323,28 +319,28 @@ Object.assign(Validator.prototype, {
             handleSingleInput(nameValue, this.errors);
         }
         return;
-    },
+    }
     // 调用组件作简单验证(一般的正则校验)
-    check: function(rule, stringToValidate) {
+    check(rule, stringToValidate) {
         let fun = this._testHooks[rule];
         return fun(stringToValidate, true);
-    },
+    }
     // 为某个 field 注册自定义回调函数
-    registerCallback: function(name, handler) {
+    registerCallback(name, handler) {
         if (name && typeof name === 'string' && handler && typeof handler === 'function') {
             this.handlers[name] = handler;
         }
         
         // 支持链式调用
         return this;
-    },
+    }
     // 为某个自定义回调函数注册提示信息
-    setMessage: function(rule, message) {
+    setMessage(rule, message) {
         notices[rule] = message;
         return this;
-    },
+    }
 
-})
+}
 
 export {
     DEBUG,
