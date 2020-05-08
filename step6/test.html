@@ -12,7 +12,7 @@
             <form action="#" method="post" id="example_form" onsubmit="return myfun()">
                 <tr>
                     <td>邮箱验证</td>
-                    <td><input type="text" id="email-1" ></td>
+                    <td><div id="parent"><input type="text" id="email-1"></div></td>
                     <td><span style="color:red;font-size: 12px;display: none;" class="tishi" id = "email-1-span"></span></td>
                 </tr>
                 <tr>
@@ -70,8 +70,13 @@
 </body>
 <script async type="module" >
     import {Validator} from './validator/validator.js'
-    import {regexs, notices } from './validator/rules&static.js'
-    let v = new Validator({ formId: "example_form", submitId: "newbutton-1"}, [
+    
+    // 简易用法
+    let v_easy = new Validator();
+    v_easy.check('isNumeric', 11111); // true
+
+    // 复杂用法
+    let v = new Validator({ formId: "example_form", submitId: "newbutton-1", onlyValidate: false}, [
         {
             id: 'email-1',
             msg: {isEmail: '请输入合法的邮箱地址!'},
@@ -111,7 +116,6 @@
         if(value.length < 10) return false;
         return true;
     }
-
     v.registerCallback('check_password', function(value) {
         if (passwordIsStrong(value)) {
             return true;
@@ -122,11 +126,14 @@
     // setMessage('check_password', 'Please choose a stronger password using at least 111 letters.');
     
     v.registerCallback('check_phone', function(fieldVaule, length) {
-        if (!regexs.numeric.test(length)) {
+        console.log(this.check('isNumeric', length));
+        if (!this.check('isNumeric', length)) {
             return false;
         }
         return (fieldVaule.length === parseInt(length, 10));
     })
+
+
     </script>
     <script type="text/javascript">
         function myfun() {

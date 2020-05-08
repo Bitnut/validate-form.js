@@ -1,7 +1,7 @@
 import {DEBUG} from './validator.js'
 import {notices } from './rules&static.js'
 // 处理整个表单状态
-let handleSubmit = function(err) {
+let handleSubmit = function(fields, err) {
 
     if( DEBUG ) console.log( 'handling error msg' );
     if(err.size === 0) {
@@ -10,17 +10,24 @@ let handleSubmit = function(err) {
 
     } else {
 
-        for(let [eleTag, errObject] of err) {
-            if( DEBUG ) console.log(errObject);
-            let errmsg;
-            if(errObject.rule === 'required') {
-                errmsg = notices['required']; 
-            } else {
-                errmsg = errObject.msg;
-            }
+        for(let eleTag of fields.keys()){
             let ele = document.getElementById(`${eleTag}-span`);
-            ele.innerHTML = errmsg;
-            ele.style.display = 'inline';
+            let msg;
+            if( err.has(eleTag) ) {
+                let errObject = err.get(eleTag);
+                if(errObject.rule === 'required') {
+                    msg = notices['required']; 
+                } else {
+                    msg = errObject.msg;
+                }
+                ele.innerHTML = msg;
+                ele.style.display = 'inline';
+            } else if ( ele.innerHTML ) {
+                console.log('hahahhaha')
+                msg = notices['success'];
+                ele.innerHTML = msg;
+                ele.style.display = 'inline';
+            }
         }
     }
 

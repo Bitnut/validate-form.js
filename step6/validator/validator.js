@@ -3,8 +3,7 @@ import { handleSubmit, handleSingleInput} from './noticeHandler.js'
 import { regexs, notices, defaultCallback} from './rules&static.js'
 
 const DEBUG = true;
-const ONLY_VALIDATE = false;
-
+const INIT_FAILED = -1;
 
 /**
  * 传参：
@@ -15,7 +14,7 @@ const ONLY_VALIDATE = false;
  * 数据结构说明：
  *
  * @param {Object[]} fields             保存所有的待调试 field 信息
- * @param {string} fields.key           保存的 field 标识名：eleTag
+ * @param {string} fields.[[entries]]   保存的 field 标识名：eleTag
  * @param {string} fields[].id          field 的 id 属性
  * @param {string} fields[].name        field 的 name 属性
  * @param {Object} fields[].msg         所有需要自定义的提示信息
@@ -39,19 +38,25 @@ class Validator {
         if (!formInfo)
             return this;
         // 初始化校验    
-        let check = initCheck(formInfo, customRules, callback);
-        if (!check) return false;
+        try {
+            initCheck(formInfo, customRules, callback);
+        } catch (error) {
+            console.error(error)
+            return INIT_FAILED;
+        }
+        
 
-        const formId = formInfo.formId;
-        const submitId = formInfo.submitId;
+        const {formId, submitId, onlyValidate} = formInfo;
+        
         // 保存页面的所有待验证 field 和 错误
-        this.fields = {};
+        this.fields = new Map();
         this.errors = new Map();
-        // 添加表单、 id 提交按钮 id 、验证字段、callback、handler
+        // 添加表单、 id 提交按钮 id 、验证字段、callback、handlers
         this.formId = formId;
         this.submitId = submitId;
         this.form = document.forms[formId];
         this.handlers = {};
+        this.onlyValidate = onlyValidate ? onlyValidate : false;
         for (let item of customRules) {
             addField(this, item);
         }
@@ -82,7 +87,6 @@ class Validator {
     
         required: function(field) {
             var value = field.fieldValue;
-            console.log(field);
             if ((field.type === 'checkbox') || (field.type === 'radio')) {
                 return (field.checked === true);
             }
@@ -144,6 +148,7 @@ class Validator {
             if(ele) {
                 return field.fieldValue === ele.value;
             }
+            console.log(ele.value, field.fieldValue);
             return false;
         },
         default: function(field, defaultName){
@@ -173,41 +178,34 @@ class Validator {
     }
     _validateField(field) {
 
-        let rules = field.rules;
-        let indexOfRequired = rules.indexOf('required');
-        let eleTag = field.id ? field.id : field.name;
-        
-        let isEmpty = !field.fieldValue;
+        let { rules, eleTag, fieldValue, msg, element } = field;
+        let failed = false;
 
+        // 如果 field 不是必填项且为空，则直接返回
+        // 除非 field 规则中带有外部注册的优先回调：如 !callback_check_password
+        let indexOfRequired = rules.indexOf('required');
+        let isEmpty = !fieldValue;
+        
+        if (indexOfRequired === -1 && isEmpty && method.indexOf('!callback_') === -1) {
+            return;
+        }
 
         //遍历 field 的所有规则，并解析需要传参的函数
         for (let i = 0; i < rules.length; i++) {   
             
             let method = rules[i];
             let param = null;
-            let failed = false;
             let parts = regexs.method.exec(method);
-
-            // 如果 field 不是必填项且为空直接跳过
-            // 除非 field 规则中带有外部注册的优先 !callback
-            
-            
-            if (indexOfRequired === -1 && method.indexOf('!callback_') === -1 && isEmpty) {
-                continue;
-            }
-            
-            
             // 如果是传参函数，将函数名和形参分离
             if (parts) {
                 method = parts[1];
                 param = parts[2];   
             }
-
+            
             if (method.charAt(0) === '!') {
                 method = method.substring(1, method.length);
             }
 
-            
             if (typeof this._testHooks[method] === 'function') {
                 if (!this._testHooks[method].apply(this, [field, param])) {
                     failed = true;
@@ -217,12 +215,12 @@ class Validator {
                 method = method.substring(9, method.length);
 
                 if (typeof this.handlers[method] === 'function') {
-                    if (this.handlers[method].apply(this, [field.fieldValue, param, field]) === false) {
+                    if (this.handlers[method].apply(this, [fieldValue, param, field]) === false) {
                         failed = true;
                     }
-                }
+                } else throw ReferenceError(`试图使用一个未注册的回调函数: ${method} 进行校验`);
             } else {
-                console.error('试图使用一个不存在的方法进行校验');
+                throw ReferenceError(`试图使用一个不存在的方法: ${method} 进行校验`);
             }
 
             // 处理校验错误，写在前面的规则优先级高于后面的规则
@@ -232,59 +230,58 @@ class Validator {
                 if( existingError ) return;
 
                 let message = "";
-                if( field.msg ) {
-                    message = field.msg[method] || notices[method];
+                if( msg ) {
+                    message = msg[method] || notices[method];
                 } else {
                     message = notices[method];
                 }
                 
                 let errorObject = {
-                    //id: field.id,
                     msg: message,
-                    element: field.element,
-                    //name: field.name,
+                    element: element,
                     rule: method
                 };
                 
                 if (!existingError) {
+                    console.log(eleTag);
                     this.errors.set(eleTag, errorObject);
                 }
+                break;
+
             }
         }
+
     }
     // 表单验证
     validateForm(evt) {
 
         this.errors.clear();
         if( DEBUG ) console.log('>>>>> submit event triggered >>>>>>');
-        // let form = this.form;
-        
-        for (let key in this.fields) {
-            if(this.fields.hasOwnProperty(key)){
-                
-                let field = this.fields[key];
-                let eleTag = field.id ? field.id : field.name;
-                let element = this.form[eleTag];
 
-                if( DEBUG ) {
-                    console.log(`validating ${key}`);
-                    // console.log(element);
-                }
+        for( let [key, value] of this.fields) {
+            let field = value;
+            let element = this.form[field.eleTag];
 
-                if (element && element !== undefined) {
-                    field.element = element;
-                    field.type = (element.length > 0) ? element[0].type : element.type;
-                    field.fieldValue = attributeValue(element, 'value');
-                    field.checked = attributeValue(element, 'checked');
+            if( DEBUG ) {
+                console.log(`validating ${key}`);
+            }
+
+            if (element && element !== undefined) {
+                field.fieldValue = attributeValue(element, 'value');
+                field.checked = attributeValue(element, 'checked');
+                try {
                     this._validateField(field);
+                } catch (e) {
+                    console.error(e);
+                    return;
                 }
             }
+
         }
 
         if( DEBUG ) console.log('>>>>>> invoking callback! >>>>>>')
         this.callback(this.errors, evt);
-        
-        if( !ONLY_VALIDATE ) handleSubmit(this.errors);
+        if( !this.onlyValidate ) handleSubmit(this.fields, this.errors);
 
         if (this.errors.size > 0) {
             if (evt && evt.preventDefault) {
@@ -294,25 +291,32 @@ class Validator {
                 event.returnValue = false;
             }
         }
-        return true;
+        return;
 
     }
     // 动态验证
     blurValidate( eleTag, isName = false ) {
         if( DEBUG ) console.log('>>>>> onblur event triggered >>>>>>');
 
-        let field = this.fields[eleTag];
-        let element = this.form[eleTag];
-        field.type = (element.length > 0) ? element[0].type : element.type;
+        let field = this.fields.get(eleTag);
+        let element = field.element;
         field.fieldValue = attributeValue(element, 'value');
         field.checked = attributeValue(element, 'checked');
         field.element = element;
         this.errors.delete(eleTag);
-        this._validateField(field);
 
-        if( ONLY_VALIDATE ) return;
+        try {
+            this._validateField(field);
+        } catch (e) {
+            console.error(e);
+            return;
+        }
+
+        console.log(this.fields);
+        if( this.onlyValidate ) return;
 
         let nameValue = isName ? field.name : field.id;
+
         if( this.errors.has(eleTag) ) {
             handleSingleInput(nameValue, this.errors);
         } else {
@@ -344,6 +348,5 @@ class Validator {
 
 export {
     DEBUG,
-    ONLY_VALIDATE,
     Validator
 };
