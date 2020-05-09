@@ -20,10 +20,12 @@ let handleSubmit = function(fields, err) {
                 } else {
                     msg = errObject.msg;
                 }
-                ele.innerHTML = msg;
-                ele.style.display = 'inline';
+                if( !errObject.pending ) {
+                    ele.innerHTML = msg;
+                    ele.style.display = 'inline';
+                }
+                
             } else if ( ele.innerHTML ) {
-                console.log('hahahhaha')
                 msg = notices['success'];
                 ele.innerHTML = msg;
                 ele.style.display = 'inline';
@@ -37,21 +39,21 @@ let handleSubmit = function(fields, err) {
 // 处理单个 input 元素状态
 let handleSingleInput = function( nameValue, errors ) {
 
-    
     let ele = document.getElementById(`${nameValue}-span`);
     let errObject = errors.get(nameValue);
-    if( !errObject ) {
+    if( !errObject) {
         console.log(notices['success']);
         ele.innerHTML = notices['success'];
         ele.style.display = 'inline';
         return;
     }
     if( DEBUG ) {
-        console.log(errors);
         console.log(errObject);
     }
-    ele.innerHTML = errObject.msg;
-    ele.style.display = 'inline';
+    if( !errObject.pending ) {
+        ele.innerHTML = errObject.msg;
+        ele.style.display = 'inline';
+    }
     return;
 
 }

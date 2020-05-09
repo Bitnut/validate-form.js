@@ -50,8 +50,14 @@ let checkCustomRules = function(customRules) {
     }
 
 }
+let checkCustomHandler = function(name, handler) {
+    if (!(name && typeof name === 'string' && handler && typeof handler === 'function')) {
+        throw TypeError('注册回调函数时传参规则错误！');
+    }
+}
+
 // 获取表单元素的特定属性
-function attributeValue(element, attributeName) {
+let  attributeValue = function(element, attributeName) {
     var i;
     if ((element.length > 0) && (element[0].type === 'radio' || element[0].type === 'checkbox')) {
         for (i = 0; i < element.length; i++) {
@@ -97,12 +103,12 @@ let addField = function( self, field ){
             
             if( DEBUG ) console.log(`adding onblur to id: ${field.id}`);
             document.getElementById(field.id).addEventListener("blur", function(evt) {
-                self.blurValidate( field.id );
-                
                 // 如果点击了提交按钮，处理提交事件
-                // if(window.event.relatedTarget && window.event.relatedTarget.id === self.submitId) {
-                //     //self.validateForm();
-                // }
+                if(window.event.relatedTarget && window.event.relatedTarget.id === self.submitId) {
+                    // self.validateForm();
+                    return;
+                }
+                self.blurValidate( field.id );
             } , true);
 
         } else {
@@ -111,10 +117,10 @@ let addField = function( self, field ){
             let target = document.getElementsByName(field.name);
             for(let i = 0; i < target.length; i++) {
                 document.getElementsByName(field.name)[i].addEventListener("blur", function() {
+                    if(window.event.relatedTarget && window.event.relatedTarget.id === self.submitId) { 
+                        return;
+                    }
                     self.blurValidate( field.name, true);
-                    // if(window.event.relatedTarget && window.event.relatedTarget.id === self.submitId) { 
-                    //     //self.validateForm();
-                    // }
                 }, true);
             }
 
@@ -129,8 +135,10 @@ let addField = function( self, field ){
 
 }
 
+
 export {
     initCheck,
     attributeValue,
     addField,
+    checkCustomHandler,
 }

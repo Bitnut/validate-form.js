@@ -65,6 +65,7 @@
                     </td>
                 </tr>
             </form>
+            <button type="button" id = "newbutton-2">处理表单</button>
         </table>
     </div>  
 </body>
@@ -89,7 +90,6 @@
         },
         {
             id: 'phone',
-            msg: { check_phone: 'Please enter correct phone number.'},
             rules: 'required|!callback_check_phone(11)',
         },
         {
@@ -110,7 +110,6 @@
             rules: 'default(dd)'
         }
     ], function(err, evt){
-        console.log('lllllllllllllllllllllll');
     });
     function passwordIsStrong(value) {
         if(value.length < 10) return false;
@@ -126,18 +125,34 @@
     // setMessage('check_password', 'Please choose a stronger password using at least 111 letters.');
     
     v.registerCallback('check_phone', function(fieldVaule, length) {
-        console.log(this.check('isNumeric', length));
-        if (!this.check('isNumeric', length)) {
+        if (!v.check('isNumeric', length)) {
             return false;
         }
-        return (fieldVaule.length === parseInt(length, 10));
-    })
-
+        let pro = new Promise(function(resolve, reject){
+            setTimeout(() => {
+                console.log('fetch data end');
+                if (fieldVaule.length === parseInt(length, 10)) {
+                    resolve();
+                } else {
+                    reject();
+                }
+                
+            }, 2000);
+            console.log('fetching data');
+        });
+        return pro;
+        
+    }, true).setMessage('check_phone', 'Please enter a correct phone number using 11 number.');
+    
+    // 校验后异步
+    let click = document.getElementById('newbutton-2').addEventListener('click', function(){
+        v.validateForm();
+        // ... 异步操作
+    });
 
     </script>
     <script type="text/javascript">
-        function myfun() {
-        console.log('This is myfun');
+    function myfun(error) {
     }
     </script>
 </html>

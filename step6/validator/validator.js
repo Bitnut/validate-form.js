@@ -1,4 +1,4 @@
-import { initCheck, addField, attributeValue } from './util.js'
+import { initCheck, addField, attributeValue, checkCustomHandler } from './util.js'
 import { handleSubmit, handleSingleInput} from './noticeHandler.js'
 import { regexs, notices, defaultCallback} from './rules&static.js'
 
@@ -56,6 +56,7 @@ class Validator {
         this.submitId = submitId;
         this.form = document.forms[formId];
         this.handlers = {};
+        this.handlerNotice = {};
         this.onlyValidate = onlyValidate ? onlyValidate : false;
         for (let item of customRules) {
             addField(this, item);
@@ -67,7 +68,9 @@ class Validator {
         this.form.onsubmit = (function (that) {
             return function (evt) {
                 try {
-                    return that.validateForm(evt) && ( !userOnSubmit || userOnSubmit());
+                    console.log(userOnSubmit);
+                    !userOnSubmit || userOnSubmit();
+                     that.validateForm(evt);
                 }
                 catch (e) {
                     console.error(e);
@@ -111,12 +114,12 @@ class Validator {
         isNumeric: function(field, check = false) {
             let fieldValue = field;
             if( !check ) fieldValue = field.fieldValue;
-            return regexs.numeric.test( fieldValue );
+            return regexs.numeric.test( fieldValue ) || regexs.numericNoSymbols.test(fieldValue);
         },
-        isInteger: function(field, check = false) {
+        isInt: function(field, check = false) {
             let fieldValue = field;
             if( !check ) fieldValue = field.fieldValue;
-            return regexs.integer.test( fieldValue );
+            return regexs.int.test( fieldValue );
         },
         isNatural: function(field, check = false) {
             let fieldValue = field;
@@ -178,8 +181,11 @@ class Validator {
     }
     _validateField(field) {
 
-        let { rules, eleTag, fieldValue, msg, element } = field;
+        const { rules, eleTag, fieldValue, msg } = field;
         let failed = false;
+        let pending = false;
+        let errors = this.errors;
+        let message = "";
 
         // 如果 field 不是必填项且为空，则直接返回
         // 除非 field 规则中带有外部注册的优先回调：如 !callback_check_password
@@ -196,6 +202,7 @@ class Validator {
             let method = rules[i];
             let param = null;
             let parts = regexs.method.exec(method);
+
             // 如果是传参函数，将函数名和形参分离
             if (parts) {
                 method = parts[1];
@@ -206,19 +213,52 @@ class Validator {
                 method = method.substring(1, method.length);
             }
 
-            if (typeof this._testHooks[method] === 'function') {
+            if ( typeof this._testHooks[method] === 'function' ) {
+                message = this.getMessage(msg, method);
                 if (!this._testHooks[method].apply(this, [field, param])) {
                     failed = true;
                 }
-            } else if (method.substring(0, 9) === 'callback_') {
-                // Custom method. Execute the handler if it was registered
-                method = method.substring(9, method.length);
+            } else if ( method.substring(0, 9) === 'callback_' ) {
 
-                if (typeof this.handlers[method] === 'function') {
+                method = method.substring(9, method.length);
+                message = this.getMessage(msg, method);
+                if ( typeof this.handlers[method] === 'function' ) {
+
                     if (this.handlers[method].apply(this, [fieldValue, param, field]) === false) {
                         failed = true;
                     }
-                } else throw ReferenceError(`试图使用一个未注册的回调函数: ${method} 进行校验`);
+                    
+                } else if( typeof this.handlers[method] === 'object' ) {
+
+                    if( DEBUG ) console.log('>>>>>> async callback! >>>>>>');
+                    failed = true;
+                    pending = true;
+                    let asyncMethod = this.handlers[method].handler;
+                    // 处理异步
+                    asyncMethod.apply( this, [fieldValue, param, field]).then(function(){
+
+                        if( DEBUG ) console.log('async check success!');
+                        errors.delete(eleTag);
+                        handleSingleInput(eleTag, errors);
+
+                    },function(){
+
+                        if( DEBUG ) console.log('asycnc check failed!');
+                        pending = false;
+
+                        let errorObject = {
+                            msg: message,
+                            rule: method,
+                            pending: pending
+                        };
+                        errors.set(eleTag, errorObject);
+                        handleSingleInput(eleTag, errors);
+
+                    })
+
+                } else {
+                    throw ReferenceError(`试图使用一个未注册的回调函数: ${method} 进行校验`);
+                }
             } else {
                 throw ReferenceError(`试图使用一个不存在的方法: ${method} 进行校验`);
             }
@@ -226,25 +266,17 @@ class Validator {
             // 处理校验错误，写在前面的规则优先级高于后面的规则
             if (failed) {
 
-                let existingError = this.errors.get(eleTag);
+                let existingError = errors.get(eleTag);
                 if( existingError ) return;
-
-                let message = "";
-                if( msg ) {
-                    message = msg[method] || notices[method];
-                } else {
-                    message = notices[method];
-                }
                 
                 let errorObject = {
                     msg: message,
-                    element: element,
-                    rule: method
+                    rule: method,
+                    pending: pending
                 };
                 
                 if (!existingError) {
-                    console.log(eleTag);
-                    this.errors.set(eleTag, errorObject);
+                    errors.set(eleTag, errorObject);
                 }
                 break;
 
@@ -254,7 +286,6 @@ class Validator {
     }
     // 表单验证
     validateForm(evt) {
-
         this.errors.clear();
         if( DEBUG ) console.log('>>>>> submit event triggered >>>>>>');
 
@@ -311,8 +342,7 @@ class Validator {
             console.error(e);
             return;
         }
-
-        console.log(this.fields);
+        
         if( this.onlyValidate ) return;
 
         let nameValue = isName ? field.name : field.id;
@@ -330,18 +360,42 @@ class Validator {
         return fun(stringToValidate, true);
     }
     // 为某个 field 注册自定义回调函数
-    registerCallback(name, handler) {
-        if (name && typeof name === 'string' && handler && typeof handler === 'function') {
+    registerCallback(name, handler, isAsync) {
+        try {
+            checkCustomHandler(name, handler);
+        } catch (e) {
+            console.error(e);
+            return false;
+        }
+        if ( isAsync ) {
+            this.handlers[name] = {
+                isAsync: isAsync,
+                handler: handler
+            };
+        } else {
             this.handlers[name] = handler;
         }
-        
+
         // 支持链式调用
         return this;
     }
     // 为某个自定义回调函数注册提示信息
     setMessage(rule, message) {
-        notices[rule] = message;
+        this.handlerNotice[rule] = message;
         return this;
+    }
+    getMessage(msg, method) {
+        let res;
+        if( msg ) {
+            res = msg[method] || notices[method] || this.handlerNotice[method];
+        } else {
+            res = notices[method] || this.handlerNotice[method];
+        }
+        if( !res && DEBUG ) {
+            console.warn(`未找到指定方法: ${method} 的提示信息`);
+        }
+        
+        return res;
     }
 
 }
