@@ -1,21 +1,22 @@
-export const regexs = {
+const regexs = {
 
     username: /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]{3,16}$/,
-    method: /^(.+?)\((.+)\)$/,
+    method: /^(.+)\((.+)\)$/,
+    start2End: /^(.+)\[(\d?,\d?)\]$/,
     email:/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@(\w+\.)+\w+$/,
     password: /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]{6,30}$/,
     numeric: /^[+-]?([0-9]*[.])?[0-9]+$/,
     numericNoSymbols : /^[0-9]+$/,
-    int: /^[-+]?[1-9]\d*$/,
-    natural: /^(0|[1-9]\d*)$/,
-    float: /^[+-]?((0|[1-9]\d*)\.[0-9]*)$/,
+    int: /^[-+]?(0|[1-9]\d*)$/,
+    uint: /^(0|[1-9]\d*)$/,
+    float: /^[+-]?((0|[1-9]\d*)\.[0-9]*)?(0|[1-9]\d*)?$/,
     alpha: /^[a-zA-Z]+$/,
     alphaNumeric: /^[a-zA-Z0-9]+$/,
     alphaDash: /^[a-zA-Z0-9_\-]+$/,
 
 }
 
-export const notices = {
+const notices = {
     
     isEmail: "您还没有输入登录邮箱，无法登录！",
     isPassword: "请输入合法的密码!长度应在6-30位包含数字和字母。",
@@ -31,5 +32,7 @@ function defaultCallback(errors) {
 }
 
 export {
+    regexs,
+    notices,
     defaultCallback
 }

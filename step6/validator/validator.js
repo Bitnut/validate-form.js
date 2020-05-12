@@ -46,18 +46,23 @@ class Validator {
         }
         
 
-        const {formId, submitId, onlyValidate} = formInfo;
+        const {formId, submitId, onlyValidate, async} = formInfo;
         
-        // 保存页面的所有待验证 field 和 错误
-        this.fields = new Map();
-        this.errors = new Map();
+        
         // 添加表单、 id 提交按钮 id 、验证字段、callback、handlers
         this.formId = formId;
         this.submitId = submitId;
+        this.async = async ? async : true;
+        this.onlyValidate = onlyValidate ? onlyValidate : false;
+
+        // 保存页面的所有待验证 field 和 错误
+        this.fields = new Map();
+        this.errors = new Map();
+        
         this.form = document.forms[formId];
         this.handlers = {};
         this.handlerNotice = {};
-        this.onlyValidate = onlyValidate ? onlyValidate : false;
+        
         for (let item of customRules) {
             addField(this, item);
         }
@@ -65,19 +70,18 @@ class Validator {
 
         // 提交拦截
         let userOnSubmit = this.form.onsubmit;
-        this.form.onsubmit = (function (that) {
-            return function (evt) {
+        this.form.onsubmit = (() => {
+            return (evt) => {
                 try {
-                    console.log(userOnSubmit);
                     !userOnSubmit || userOnSubmit();
-                     that.validateForm(evt);
+                    this.validateForm(evt);
                 }
                 catch (e) {
                     console.error(e);
                     evt.preventDefault();
                 }
             };
-        })(this);
+        })();
 
         if (DEBUG) {
             console.log('>>>>>> initalize complete >>>>>>');
@@ -89,69 +93,140 @@ class Validator {
     _testHooks = {
     
         required: function(field) {
-            var value = field.fieldValue;
-            if ((field.type === 'checkbox') || (field.type === 'radio')) {
-                return (field.checked === true);
+            const {fieldValue, type, checked} = field;
+            if ((type === 'checkbox') || (type === 'radio')) {
+                return (checked === true);
             }
     
-            return (value !== null && value !== '');
+            return (fieldValue !== null && fieldValue !== '');
         },
-        isUsername: function (field, check = false) {
-            let fieldValue = field;
-            if( !check ) fieldValue = field.fieldValue;
-            return regexs.username.test( fieldValue );
+        isUsername: function (field, param) {
+            const regexPassed = regexs.username.test( field.fieldValue );
+            if(param) {
+                const rangeCheck = this.rangeCheck( field.fieldValue, param, 'string');
+                return regexPassed && rangeCheck;
+            } else {
+                return regexPassed;
+            }
         },
-        isEmail: function(field, check = false) {
-            let fieldValue = field;
-            if( !check ) fieldValue = field.fieldValue;
-            return regexs.email.test( fieldValue );
+        isEmail: function(field, param) {
+            const regexPassed = regexs.email.test( field.fieldValue );
+            if(param) {
+                const rangeCheck = this.rangeCheck( field.fieldValue, param, 'string');
+                return regexPassed && rangeCheck;
+            } else {
+                return regexPassed;
+            }
         },
-        isPassword: function(field, check = false) {
-            let fieldValue = field;
-            if( !check ) fieldValue = field.fieldValue;
-            return regexs.password.test( fieldValue );
+        isPassword: function(field, param) {
+            const regexPassed = regexs.password.test( field.fieldValue );
+            if(param) {
+                const rangeCheck = this.rangeCheck( field.fieldValue, param, 'string');
+                return regexPassed && rangeCheck;
+            } else {
+                return regexPassed;
+            }
         },
-        isNumeric: function(field, check = false) {
-            let fieldValue = field;
-            if( !check ) fieldValue = field.fieldValue;
-            return regexs.numeric.test( fieldValue ) || regexs.numericNoSymbols.test(fieldValue);
+        isNumeric: function(field, param) {
+            const regexPassed = regexs.numeric.test( field.fieldValue ) || regexs.numericNoSymbols.test(field.fieldValue);
+            if(param) {
+                const rangeCheck = this.rangeCheck( field.fieldValue, param, 'string');
+                return regexPassed && rangeCheck;
+            } else {
+                return regexPassed;
+            }
         },
-        isInt: function(field, check = false) {
-            let fieldValue = field;
-            if( !check ) fieldValue = field.fieldValue;
-            return regexs.int.test( fieldValue );
+        isInt: function(field, param) {
+            const regexPassed = regexs.int.test( field.fieldValue );
+            if(param) {
+                const rangeCheck = this.rangeCheck( field.fieldValue, param, 'int');
+                return regexPassed && rangeCheck;
+            } else {
+                return regexPassed;
+            }
         },
-        isNatural: function(field, check = false) {
-            let fieldValue = field;
-            if( !check ) fieldValue = field.fieldValue;
-            return regexs.natural.test( fieldValue );
+        isSaveInt: function(field) {
+            const fieldValue = parseInt(field.fieldValue, 10);
+            return regexs.int.test( fieldValue ) && Number.isSafeInteger( fieldValue ); 
         },
-        isFloat: function(field, check = false) {
-            let fieldValue = field;
-            if( !check ) fieldValue = field.fieldValue;
-            return regexs.float.test( fieldValue );
+        isINT8: function(field) {
+            const fieldValue = parseInt(field.fieldValue, 10);
+            return regexs.int.test( fieldValue ) && fieldValue >= -0x80 && fieldValue <= 0x7F;
         },
-        isAlpha: function(field, check = false) {
-            let fieldValue = field;
-            if( !check ) fieldValue = field.fieldValue;
-            return regexs.alpha.test( fieldValue );
+        isINT16: function(field) {
+            const fieldValue = parseInt(field.fieldValue, 10);
+            return regexs.int.test( fieldValue ) && fieldValue >= -0x8000 && fieldValue <= 0x7FFF;
         },
-        isAlphaNumeric: function(field, check = false) {
-            let fieldValue = field;
-            if( !check ) fieldValue = field.fieldValue;
-            return regexs.alphaNumeric.test( fieldValue );
+        isINT32: function(field) {
+            const fieldValue = parseInt(field.fieldValue, 10);
+            return regexs.int.test( fieldValue ) && fieldValue >= -0x80000000 && fieldValue <= 0x7FFFFFFF;
         },
-        isAlphaDash: function(field, check = false) {
-            let fieldValue = field;
-            if( !check ) fieldValue = field.fieldValue;
-            return regexs.alphaDash.test( fieldValue );
+        isUint: function(field, param) {
+            const regexPassed = regexs.uint.test( field.fieldValue );
+            if(param) {
+                const rangeCheck = this.rangeCheck( field.fieldValue, param, 'int');
+                return regexPassed && rangeCheck;
+            } else {
+                return regexPassed;
+            }
+        },
+        isSaveUINT: function(field) {
+            const fieldValue = parseInt(field.fieldValue, 10);
+            return regexs.unit.test( fieldValue ) && fieldValue >= 0 && fieldValue <= Number.MAX_SAFE_INTEGER;
+        },
+        isUINT8: function(field) {
+            const fieldValue = parseInt(field.fieldValue, 10);
+            return regexs.unit.test( fieldValue ) && fieldValue >= 0 && fieldValue <= 0xFF;
+        },
+        isUINT16: function(field) {
+            const fieldValue = parseInt(field.fieldValue, 10);
+            return regexs.unit.test( fieldValue ) && fieldValue >= 0 && fieldValue <= 0xFFFF;
+        },
+        isUINT32: function(field) {
+            const fieldValue = parseInt(field.fieldValue, 10);
+            return regexs.unit.test( fieldValue ) && fieldValue >= 0 && fieldValue <= 0xFFFFFFFF;
+        },
+        isFloat: function(field, param) {
+            const regexPassed = regexs.float.test( field.fieldValue );
+            if(param) {
+                const rangeCheck = this.rangeCheck( field.fieldValue, param, 'float');
+                return regexPassed && rangeCheck;
+            } else {
+                return regexPassed;
+            }
+        },
+        isAlpha: function(field, param) {
+            const regexPassed = regexs.alpha.test( field.fieldValue );
+            if(param) {
+                const rangeCheck = this.rangeCheck( field.fieldValue, param, 'string');
+                return regexPassed && rangeCheck;
+            } else {
+                return regexPassed;
+            }
+        },
+        isAlphaNumeric: function(field, param) {
+            const regexPassed = regexs.alphaNumeric.test( field.fieldValue );
+            if(param) {
+                const rangeCheck = this.rangeCheck( field.fieldValue, param, 'string');
+                return regexPassed && rangeCheck;
+            } else {
+                return regexPassed;
+            }
+        },
+        isAlphaDash: function(field, param) {
+            const regexPassed = regexs.alphaDash.test( field.fieldValue );
+            if(param) {
+                const rangeCheck = this.rangeCheck( field.fieldValue, param, 'string');
+                return regexPassed && rangeCheck;
+            } else {
+                return regexPassed;
+            }
         },
         equal: function (field, newField) {
             let ele = this.form[newField];
             if(ele) {
                 return field.fieldValue === ele.value;
             }
-            console.log(ele.value, field.fieldValue);
             return false;
         },
         default: function(field, defaultName){
@@ -201,12 +276,12 @@ class Validator {
             
             let method = rules[i];
             let param = null;
-            let parts = regexs.method.exec(method);
-
+            let funParts = regexs.method.exec(method);
+ 
             // 如果是传参函数，将函数名和形参分离
-            if (parts) {
-                method = parts[1];
-                param = parts[2];   
+            if (funParts) {
+                method = funParts[1];
+                param = funParts[2];
             }
             
             if (method.charAt(0) === '!') {
@@ -214,47 +289,49 @@ class Validator {
             }
 
             if ( typeof this._testHooks[method] === 'function' ) {
+
                 message = this.getMessage(msg, method);
                 if (!this._testHooks[method].apply(this, [field, param])) {
                     failed = true;
                 }
+
             } else if ( method.substring(0, 9) === 'callback_' ) {
 
                 method = method.substring(9, method.length);
                 message = this.getMessage(msg, method);
                 if ( typeof this.handlers[method] === 'function' ) {
-
+                    
                     if (this.handlers[method].apply(this, [fieldValue, param, field]) === false) {
                         failed = true;
                     }
                     
                 } else if( typeof this.handlers[method] === 'object' ) {
-
-                    if( DEBUG ) console.log('>>>>>> async callback! >>>>>>');
+                    
                     failed = true;
                     pending = true;
+                    
                     let asyncMethod = this.handlers[method].handler;
-                    // 处理异步
-                    asyncMethod.apply( this, [fieldValue, param, field]).then(function(){
 
-                        if( DEBUG ) console.log('async check success!');
-                        errors.delete(eleTag);
-                        handleSingleInput(eleTag, errors);
-
-                    },function(){
-
-                        if( DEBUG ) console.log('asycnc check failed!');
-                        pending = false;
-
-                        let errorObject = {
-                            msg: message,
-                            rule: method,
-                            pending: pending
-                        };
-                        errors.set(eleTag, errorObject);
-                        handleSingleInput(eleTag, errors);
-
-                    })
+                    //处理异步
+                    asyncMethod.apply( this, [fieldValue, param, function(flag) {
+                        if(flag) {
+                            if( DEBUG ) console.log('async check success!');
+                            errors.delete(eleTag);
+                            handleSingleInput(eleTag, errors);
+    
+                        } else {
+                            if( DEBUG ) console.log('async check failed!');
+                            pending = false;
+    
+                            let errorObject = {
+                                msg: message,
+                                rule: method,
+                                pending: pending
+                            };
+                            errors.set(eleTag, errorObject);
+                            handleSingleInput(eleTag, errors);
+                        }
+                    }], field);
 
                 } else {
                     throw ReferenceError(`试图使用一个未注册的回调函数: ${method} 进行校验`);
@@ -286,10 +363,14 @@ class Validator {
     }
     // 表单验证
     validateForm(evt) {
-        this.errors.clear();
+
+        let errors = this.errors;
+        let fields = this.fields;
+
+        errors.clear();
         if( DEBUG ) console.log('>>>>> submit event triggered >>>>>>');
 
-        for( let [key, value] of this.fields) {
+        for( let [key, value] of fields) {
             let field = value;
             let element = this.form[field.eleTag];
 
@@ -311,10 +392,9 @@ class Validator {
         }
 
         if( DEBUG ) console.log('>>>>>> invoking callback! >>>>>>')
-        this.callback(this.errors, evt);
-        if( !this.onlyValidate ) handleSubmit(this.fields, this.errors);
-
-        if (this.errors.size > 0) {
+        this.callback(errors, evt, handleSubmit.bind(this, fields, errors));
+        if( !this.onlyValidate && !this.async ) handleSubmit(fields, errors);
+        if (errors.size > 0) {
             if (evt && evt.preventDefault) {
                 evt.preventDefault();
             } else if (event) {
@@ -322,8 +402,6 @@ class Validator {
                 event.returnValue = false;
             }
         }
-        return;
-
     }
     // 动态验证
     blurValidate( eleTag, isName = false ) {
@@ -357,7 +435,8 @@ class Validator {
     // 调用组件作简单验证(一般的正则校验)
     check(rule, stringToValidate) {
         let fun = this._testHooks[rule];
-        return fun(stringToValidate, true);
+        let field = {fieldValue: stringToValidate};
+        return fun(field);
     }
     // 为某个 field 注册自定义回调函数
     registerCallback(name, handler, isAsync) {
@@ -396,6 +475,35 @@ class Validator {
         }
         
         return res;
+    }
+    rangeCheck(str, param, type) {
+
+        const range = param.split(',');
+        if( type === 'int' ) {
+
+            const fieldValue = parseInt(str, 10);
+            const gteCheckPassed = !range[0] || fieldValue >= parseInt(range[0], 10);
+            const lteCheckPassed = !range[1] || fieldValue <= parseInt(range[1], 10);
+            return gteCheckPassed && lteCheckPassed;
+
+        } else if ( type === 'float') {
+
+            const fieldValue = parseFloat(str, 10);
+            const gteCheckPassed = !range[0] || fieldValue >= parseFloat(range[0], 10);
+            const lteCheckPassed = !range[1] || fieldValue <= parseFloat(range[1], 10);
+            return gteCheckPassed && lteCheckPassed;
+    
+        } else if ( type === 'string') {
+            
+            const fieldValue = str;
+            const minCheckPassed = !range[0] || fieldValue.length >= parseInt(range[0], 10);
+            const maxCheckPassed = !range[1] || fieldValue.length <= parseInt(range[1], 10);
+            return minCheckPassed && maxCheckPassed;
+
+        } else {
+            if(DEBUG) console.error('passed wrong type!');
+        }
+        
     }
 
 }

@@ -31,6 +31,11 @@
                     <td><span style="color:red;font-size: 12px;display: none;" class="tishi" id = "phone-span"> </span></td>
                 </tr>
                 <tr>
+                    <td>成绩</td>
+                    <td><input type="text" id="score"></td>
+                    <td><span style="color:red;font-size: 12px;display: none;" class="tishi" id = "score-span"> </span></td>
+                </tr>
+                <tr>
                     <td>性别</td>
                     <td>
                         <input type="radio" name="sex">男
@@ -77,16 +82,16 @@
     v_easy.check('isNumeric', 11111); // true
 
     // 复杂用法
-    let v = new Validator({ formId: "example_form", submitId: "newbutton-1", onlyValidate: false}, [
+    let v = new Validator({ formId: "example_form", submitId: "newbutton-1", onlyValidate: false, async: true}, [
         {
             id: 'email-1',
             msg: {isEmail: '请输入合法的邮箱地址!'},
-            rules: 'required|isEmail',
+            rules: 'required|isEmail(10,20)',
         },
         {
             id: 'password-1',
             msg: { isPassword: '请输入合法的密码!长度应在6-30位包含数字和字母。'},
-            rules: 'required|isPassword|callback_check_password',
+            rules: 'required|callback_check_password',
         },
         {
             id: 'phone',
@@ -96,6 +101,11 @@
             id: 'repassword-1',
             msg: { equal: '两次密码输入需一致' },
             rules: 'required|equal(password-1)',
+        },
+        {
+            id: 'score',
+            rules: 'required|isFloat(0,100)',
+            msg: { isFloat: '成绩须填写0-100间的 float' },
         },
         {
             name: 'sex',
@@ -109,8 +119,17 @@
             id: 'sheng',
             rules: 'default(dd)'
         }
-    ], function(err, evt){
+    ], function(err, evt, callback){
+
+        evt.preventDefault();
+        setTimeout(() => {
+                callback();
+            }, 2000);
+
     });
+
+    //console.log(v.check('isSaveInt',15197458450067));
+
     function passwordIsStrong(value) {
         if(value.length < 10) return false;
         return true;
@@ -124,24 +143,23 @@
     }).setMessage('check_password', 'Please choose a stronger password using at least 111 letters.');
     // setMessage('check_password', 'Please choose a stronger password using at least 111 letters.');
     
-    v.registerCallback('check_phone', function(fieldVaule, length) {
+    v.registerCallback('check_phone', function(fieldVaule, length, callback, field) {
+        
         if (!v.check('isNumeric', length)) {
             return false;
         }
-        let pro = new Promise(function(resolve, reject){
-            setTimeout(() => {
+        setTimeout(() => {
                 console.log('fetch data end');
                 if (fieldVaule.length === parseInt(length, 10)) {
-                    resolve();
+                    callback(true);
                 } else {
-                    reject();
+                    
+                    callback(false);
                 }
                 
             }, 2000);
-            console.log('fetching data');
-        });
-        return pro;
-        
+        console.log('fetching data'); 
+
     }, true).setMessage('check_phone', 'Please enter a correct phone number using 11 number.');
     
     // 校验后异步

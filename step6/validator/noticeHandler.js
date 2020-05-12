@@ -1,8 +1,9 @@
 import {DEBUG} from './validator.js'
 import {notices } from './rules&static.js'
 // 处理整个表单状态
-let handleSubmit = function(fields, err) {
+function handleSubmit(fields, err, evt) {
 
+    console.log(this);
     if( DEBUG ) console.log( 'handling error msg' );
     if(err.size === 0) {
 
@@ -37,7 +38,7 @@ let handleSubmit = function(fields, err) {
 
 // 动态表单验证模块，控件失去焦点时触发
 // 处理单个 input 元素状态
-let handleSingleInput = function( nameValue, errors ) {
+function handleSingleInput( nameValue, errors ) {
 
     let ele = document.getElementById(`${nameValue}-span`);
     let errObject = errors.get(nameValue);

@@ -1,7 +1,7 @@
 import { DEBUG } from './validator.js'
 
 // 初始化传参验证
-let initCheck = function(formInfo, customRules, callback) {
+function initCheck(formInfo, customRules, callback) {
 
     checkFormInfo(formInfo);
     checkCustomRules(customRules);
@@ -12,11 +12,10 @@ let initCheck = function(formInfo, customRules, callback) {
 
 }
 // 校验表单信息
-let checkFormInfo = function(formInfo) {
+function checkFormInfo(formInfo) {
 
-    let formId = formInfo.formId;
-    let submitId = formInfo.submitId;
-    let onlyValidate = formInfo.onlyValidate;
+    const {formId, submitId, onlyValidate} =  formInfo;
+
     // 检验传入表单名字、提交按钮是否合法
     if ( !document.getElementById(formId)) {
         throw ReferenceError( `指定表单: \[ ${formId} \] 不存在，请检查传参！`);
@@ -30,12 +29,12 @@ let checkFormInfo = function(formInfo) {
 
 }
 // 对传入的 customRules 作校验
-let checkCustomRules = function(customRules) {
+function checkCustomRules(customRules) {
 
     for(let i = 0; i < customRules.length; i++) {
 
-        let tmp = customRules[i];
-        let nameValue = tmp.id ? tmp.id : tmp.name;
+        const tmp = customRules[i];
+        const nameValue = tmp.id ? tmp.id : tmp.name;
         
         if( !nameValue ) {
             throw ReferenceError( '请至少为每个规则给定元素 id 或者 name！');
@@ -50,14 +49,15 @@ let checkCustomRules = function(customRules) {
     }
 
 }
-let checkCustomHandler = function(name, handler) {
+
+function checkCustomHandler(name, handler) {
     if (!(name && typeof name === 'string' && handler && typeof handler === 'function')) {
         throw TypeError('注册回调函数时传参规则错误！');
     }
 }
 
 // 获取表单元素的特定属性
-let  attributeValue = function(element, attributeName) {
+function attributeValue(element, attributeName) {
     var i;
     if ((element.length > 0) && (element[0].type === 'radio' || element[0].type === 'checkbox')) {
         for (i = 0; i < element.length; i++) {
@@ -71,13 +71,13 @@ let  attributeValue = function(element, attributeName) {
 };
 
 // 为验证组件添加待校验元素，这里称为 field
-let addField = function( self, field ){
+function addField( self, field ){
 
-    let {id, name, msg} = field;
-    let nameValue = field.id ? field.id : field.name;
-    let onblur = field.onblur ? field.onblur : true;
-    let element = self.form[nameValue];
-    let type = (element.length > 0) ? element[0].type : element.type;
+    const {id, name, msg} = field;
+    const nameValue = field.id ? field.id : field.name;
+    const onblur = field.onblur ? field.onblur : true;
+    const element = self.form[nameValue];
+    const type = (element.length > 0) ? element[0].type : element.type;
     let fieldObject = {
 
         eleTag: nameValue,
