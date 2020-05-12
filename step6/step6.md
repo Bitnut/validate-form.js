@@ -64,8 +64,10 @@ v.check('isPassword','94009');
             rules: 'required',
             onblur: 'false'
         }
-    ]， )
+    ])
     ```
+
+
     3. 自行注册每个表单组件可能用到的回调函数和提示信息。
     ```js
     function passwordIsStrong(value) {
@@ -81,10 +83,102 @@ v.check('isPassword','94009');
         return false;
     }).setMessage('check_password', 'Please choose a stronger password using at least 111 letters.');
     ```
-    4. 修改 ONLY_VALIDATE 为 true 可以让组件只做验证，不对错误进行处理。修改 DEBUG 为 false 不输出调试信息
+
+
+    4. 创建实例时指定 onlyValidate 为 true 可以让组件只做验证，不对错误进行处理。修改 DEBUG 为 false 不输出调试信息
+    ```js
+    let v = new Validator({ formId: "example_form", submitId: "newbutton-1", onlyValidate: false}, [
+        {
+            id: 'email-1',
+            msg: {isEmail: '请输入合法的邮箱地址!'},
+            rules: 'required|isEmail(10,20)',
+        }
+    ]);
+    ```
+    ```js
+    // 位置： /#####/validator.js
+    // 输出调试信息
+    const DEBUG = true;
+    // 输出调试信息
+    const DEBUG = false;
+    ```
+
+    5. 异步校验表单和表单域
+    
+    ##### 异步校验的表单：
+    需要在创建组件实例时，第一个参数传入 async 属性，并设定为 true；最后一个参数传入异步调用
+    ```js
+    let v = new Validator({ formId: "example_form", submitId: "newbutton-1", async: true}, [
+        {
+            id: 'email-1',
+            msg: {isEmail: '请输入合法的邮箱地址!'},
+            rules: 'required|isEmail(10,20)',
+        }
+    ], function(err, evt, callback){
+        // 异步处理
+        callback();  // 调用非必要，该 callback 功能是显示错误提示 
+    });
+    ```
+    ##### 异步校验的表单域：
+    ```js
+    // 调用 registerCallback 时，第三个参数传 true 表示该回调是异步的；异步判断完成后给 callback 传判断结果 
+    v.registerCallback('check_phone', function(fieldVaule, length, callback, field) {
+        
+        if (!v.check('isNumeric', length)) {
+            return false;
+        }
+        setTimeout(() => {
+                console.log('fetch data end');
+                if (fieldVaule.length === parseInt(length, 10)) {
+                    // 调用回调，处理错误提示
+                    callback(true);
+                } else {
+                    
+                    callback(false);
+                }
+                
+            }, 2000);
+        console.log('fetching data'); 
+
+    }, true).setMessage('check_phone', 'Please enter a correct phone number using 11 number.');
+    ```
+
+    6. 范围检查
+    大部分常用的校验规则支持范围检查传参，使用方法如下：
+    ```js
+    let v = new Validator({ formId: "example_form", submitId: "newbutton-1", async: true}, [
+        {
+            id: 'score',
+            rules: 'required|isFloat(0,100)',
+            msg: { isFloat: '成绩须填写0-100间的 float' },
+        }
+    ], function(err, evt, callback){
+        // 异步处理
+        callback();  // 调用非必要，该 callback 功能是显示错误提示 
+    });
+    ```
+    ##### 写法解释：
+
+    指定范围只需要给定 [函数+范围]，如上例中的：isFloat(0,100)
+    范围的写法如下，允许只给一个边界或者不给，允许中间插入空格：
+    (0,1)
+    (,1)
+    (0,)
+    (,)
+    ( 0 , 1 )
+    (  0  ,  1  )
+
+    ##### 优先级
+    校验规则本身可能带有范围，范围检查一般不会和规则本身有冲突。
+    一旦发生冲突，校验结果取所有范围校验的交集。
+
+    7. 支持 trim
+    表单中用户传入的字符串如果带有首尾空格，首尾空格会被消除之后再进行判断。
 
 * bug & 不支持的用法
     1. 不支持图片、文件拖拽/上传组件验证
     2. 未内置日期、信用卡等校验规则，需要自己提供回调验证
     3. 需要呈现想要的效果需要自己写回调或者修改 noticeHandler 组件
     4. 暂时么有支持不同语言的内置提示文案
+    5. safeInt???搞清楚
+    6. uint64/int64 暂时不支持

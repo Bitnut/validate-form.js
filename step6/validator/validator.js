@@ -1,4 +1,4 @@
-import { initCheck, addField, attributeValue, checkCustomHandler } from './util.js'
+import { initCheck, checkCustomHandler, trim } from './util.js'
 import { handleSubmit, handleSingleInput} from './noticeHandler.js'
 import { regexs, notices, defaultCallback} from './rules&static.js'
 
@@ -64,7 +64,7 @@ class Validator {
         this.handlerNotice = {};
         
         for (let item of customRules) {
-            addField(this, item);
+            this._addField(item);
         }
         this.callback = callback;
 
@@ -73,8 +73,7 @@ class Validator {
         this.form.onsubmit = (() => {
             return (evt) => {
                 try {
-                    !userOnSubmit || userOnSubmit();
-                    this.validateForm(evt);
+                    this.validateForm(evt) && ( !userOnSubmit || userOnSubmit());
                 }
                 catch (e) {
                     console.error(e);
@@ -92,7 +91,7 @@ class Validator {
     // 校验钩子
     _testHooks = {
     
-        required: function(field) {
+        required: (field) => {
             const {fieldValue, type, checked} = field;
             if ((type === 'checkbox') || (type === 'radio')) {
                 return (checked === true);
@@ -100,159 +99,281 @@ class Validator {
     
             return (fieldValue !== null && fieldValue !== '');
         },
-        isUsername: function (field, param) {
+        isUsername: (field, param) => {
             const regexPassed = regexs.username.test( field.fieldValue );
             if(param) {
-                const rangeCheck = this.rangeCheck( field.fieldValue, param, 'string');
-                return regexPassed && rangeCheck;
+                const _rangeCheck = this._rangeCheck( field.fieldValue, param, 'string');
+                return regexPassed && _rangeCheck;
             } else {
                 return regexPassed;
             }
         },
-        isEmail: function(field, param) {
+        isEmail: (field, param) => {
             const regexPassed = regexs.email.test( field.fieldValue );
             if(param) {
-                const rangeCheck = this.rangeCheck( field.fieldValue, param, 'string');
-                return regexPassed && rangeCheck;
+                const _rangeCheck = this._rangeCheck( field.fieldValue, param, 'string');
+                return regexPassed && _rangeCheck;
             } else {
                 return regexPassed;
             }
         },
-        isPassword: function(field, param) {
+        isPassword: (field, param) => {
             const regexPassed = regexs.password.test( field.fieldValue );
             if(param) {
-                const rangeCheck = this.rangeCheck( field.fieldValue, param, 'string');
-                return regexPassed && rangeCheck;
+                const _rangeCheck = this._rangeCheck( field.fieldValue, param, 'string');
+                return regexPassed && _rangeCheck;
             } else {
                 return regexPassed;
             }
         },
-        isNumeric: function(field, param) {
-            const regexPassed = regexs.numeric.test( field.fieldValue ) || regexs.numericNoSymbols.test(field.fieldValue);
-            if(param) {
-                const rangeCheck = this.rangeCheck( field.fieldValue, param, 'string');
-                return regexPassed && rangeCheck;
-            } else {
-                return regexPassed;
-            }
+        isNumeric: (field) => {
+            return regexs.numeric.test( field.fieldValue ) || regexs.numericNoSymbols.test(field.fieldValue);
         },
-        isInt: function(field, param) {
+        isInt: (field, param) => {
             const regexPassed = regexs.int.test( field.fieldValue );
             if(param) {
-                const rangeCheck = this.rangeCheck( field.fieldValue, param, 'int');
-                return regexPassed && rangeCheck;
+                const _rangeCheck = this._rangeCheck( field.fieldValue, param, 'int');
+                return regexPassed && _rangeCheck;
             } else {
                 return regexPassed;
             }
         },
-        isSaveInt: function(field) {
+        isSaveInt: (field) => {
             const fieldValue = parseInt(field.fieldValue, 10);
             return regexs.int.test( fieldValue ) && Number.isSafeInteger( fieldValue ); 
         },
-        isINT8: function(field) {
+        isINT8: (field) => {
             const fieldValue = parseInt(field.fieldValue, 10);
             return regexs.int.test( fieldValue ) && fieldValue >= -0x80 && fieldValue <= 0x7F;
         },
-        isINT16: function(field) {
+        isINT16: (field) => {
             const fieldValue = parseInt(field.fieldValue, 10);
             return regexs.int.test( fieldValue ) && fieldValue >= -0x8000 && fieldValue <= 0x7FFF;
         },
-        isINT32: function(field) {
+        isINT32: (field) => {
             const fieldValue = parseInt(field.fieldValue, 10);
             return regexs.int.test( fieldValue ) && fieldValue >= -0x80000000 && fieldValue <= 0x7FFFFFFF;
         },
-        isUint: function(field, param) {
+        isUint: (field, param) => {
             const regexPassed = regexs.uint.test( field.fieldValue );
             if(param) {
-                const rangeCheck = this.rangeCheck( field.fieldValue, param, 'int');
-                return regexPassed && rangeCheck;
+                const _rangeCheck = this._rangeCheck( field.fieldValue, param, 'int');
+                return regexPassed && _rangeCheck;
             } else {
                 return regexPassed;
             }
         },
-        isSaveUINT: function(field) {
+        isSaveUINT: (field) => {
             const fieldValue = parseInt(field.fieldValue, 10);
             return regexs.unit.test( fieldValue ) && fieldValue >= 0 && fieldValue <= Number.MAX_SAFE_INTEGER;
         },
-        isUINT8: function(field) {
+        isUINT8: (field) => {
             const fieldValue = parseInt(field.fieldValue, 10);
             return regexs.unit.test( fieldValue ) && fieldValue >= 0 && fieldValue <= 0xFF;
         },
-        isUINT16: function(field) {
+        isUINT16: (field) => {
             const fieldValue = parseInt(field.fieldValue, 10);
             return regexs.unit.test( fieldValue ) && fieldValue >= 0 && fieldValue <= 0xFFFF;
         },
-        isUINT32: function(field) {
+        isUINT32: (field) => {
             const fieldValue = parseInt(field.fieldValue, 10);
             return regexs.unit.test( fieldValue ) && fieldValue >= 0 && fieldValue <= 0xFFFFFFFF;
         },
-        isFloat: function(field, param) {
+        isFloat: (field, param) => {
             const regexPassed = regexs.float.test( field.fieldValue );
             if(param) {
-                const rangeCheck = this.rangeCheck( field.fieldValue, param, 'float');
-                return regexPassed && rangeCheck;
+                const _rangeCheck = this._rangeCheck( field.fieldValue, param, 'float');
+                return regexPassed && _rangeCheck;
             } else {
                 return regexPassed;
             }
         },
-        isAlpha: function(field, param) {
+        isAlpha: (field, param) => {
             const regexPassed = regexs.alpha.test( field.fieldValue );
             if(param) {
-                const rangeCheck = this.rangeCheck( field.fieldValue, param, 'string');
-                return regexPassed && rangeCheck;
+                const _rangeCheck = this._rangeCheck( field.fieldValue, param, 'string');
+                return regexPassed && _rangeCheck;
             } else {
                 return regexPassed;
             }
         },
-        isAlphaNumeric: function(field, param) {
+        isAlphaNumeric: (field, param) => {
             const regexPassed = regexs.alphaNumeric.test( field.fieldValue );
             if(param) {
-                const rangeCheck = this.rangeCheck( field.fieldValue, param, 'string');
-                return regexPassed && rangeCheck;
+                const _rangeCheck = this._rangeCheck( field.fieldValue, param, 'string');
+                return regexPassed && _rangeCheck;
             } else {
                 return regexPassed;
             }
         },
-        isAlphaDash: function(field, param) {
+        isAlphaDash: (field, param) => {
             const regexPassed = regexs.alphaDash.test( field.fieldValue );
             if(param) {
-                const rangeCheck = this.rangeCheck( field.fieldValue, param, 'string');
-                return regexPassed && rangeCheck;
+                const _rangeCheck = this._rangeCheck( field.fieldValue, param, 'string');
+                return regexPassed && _rangeCheck;
             } else {
                 return regexPassed;
             }
         },
-        equal: function (field, newField) {
+        equal: (field, newField) => {
             let ele = this.form[newField];
             if(ele) {
                 return field.fieldValue === ele.value;
             }
             return false;
         },
-        default: function(field, defaultName){
+        default: (field, defaultName) => {
             return field.fieldValue !== defaultName;
         },
-        minLength: function(field, length) {
+        minLength: (field, length) => {
             if (!regexs.numeric.test(length)) {
                 return false;
             }
-
             return (field.fieldValue.length >= parseInt(length, 10));
         },
-        maxLength: function(field, length) {
+        maxLength: (field, length) => {
             if (!regexs.numeric.test(length)) {
                 return false;
             }
-
             return (field.fieldValue.length <= parseInt(length, 10));
         },
-        exactLength: function(field, length) {
+        exactLength: (field, length) => {
             if (!regexs.numeric.test(length)) {
                 return false;
             }
-
             return (field.fieldValue.length === parseInt(length, 10));
         },
+    }
+    // 表单验证
+    validateForm(evt) {
+
+        let errors = this.errors;
+        let fields = this.fields;
+
+        errors.clear();
+        if( DEBUG ) console.log('>>>>> submit event triggered >>>>>>');
+
+        for( let [key, value] of fields) {
+            let field = value;
+            let element = this.form[field.eleTag];
+
+            if( DEBUG ) {
+                console.log(`validating ${key}`);
+            }
+
+            if (element && element !== undefined) {
+                field.fieldValue = attributeValue(element, 'value');
+                field.checked = attributeValue(element, 'checked');
+                try {
+                    this._validateField(field);
+                } catch (e) {
+                    console.error(e);
+                    return;
+                }
+            }
+
+        }
+
+        if( DEBUG ) console.log('>>>>>> invoking callback! >>>>>>')
+
+        if ( this.async ) {
+            evt.preventDefault();
+            this.callback(errors, evt, handleSubmit.bind(this, fields, errors));
+        } else {
+            this.callback(errors, evt, handleSubmit.bind(this, fields, errors));
+        }
+        
+        if( !this.onlyValidate && !this.async ) handleSubmit(fields, errors);
+        if (errors.size > 0) {
+            if (evt && evt.preventDefault) {
+                evt.preventDefault();
+            } else if (event) {
+                // 适配 IE 
+                event.returnValue = false;
+            }
+        }
+    }
+    // 动态验证
+    blurValidate( eleTag, isName = false ) {
+        if( DEBUG ) console.log('>>>>> onblur event triggered >>>>>>');
+
+        let field = this.fields.get(eleTag);
+        let element = field.element;
+        field.fieldValue = attributeValue(element, 'value');
+        field.checked = attributeValue(element, 'checked');
+        field.element = element;
+        this.errors.delete(eleTag);
+
+        try {
+            this._validateField(field);
+        } catch (e) {
+            console.error(e);
+            return;
+        }
+        
+        if( this.onlyValidate ) return;
+
+        let nameValue = isName ? field.name : field.id;
+
+        if( this.errors.has(eleTag) ) {
+            handleSingleInput(nameValue, this.errors);
+        } else {
+            handleSingleInput(nameValue, this.errors);
+        }
+        return;
+    }
+    // 调用组件作简单验证(一般的正则校验)
+    check(rule, stringToValidate) {
+        const funParts = regexs.method.exec(rule);
+        if( funParts ) {
+            const fun = this._testHooks[funParts[1]];
+            const field = {fieldValue: stringToValidate};
+            return fun(field, funParts[2]);
+        } else {
+            const fun = this._testHooks[rule];
+            const field = {fieldValue: stringToValidate};
+            return fun(field);
+        }
+    }
+    // 为某个 field 注册自定义回调函数
+    registerCallback(name, handler, isAsync) {
+        try {
+            checkCustomHandler(name, handler);
+        } catch (e) {
+            console.error(e);
+            return false;
+        }
+        if ( isAsync ) {
+            this.handlers[name] = {
+                isAsync: isAsync,
+                handler: handler
+            };
+        } else {
+            this.handlers[name] = handler;
+        }
+
+        // 支持链式调用
+        return this;
+    }
+    // 为某个自定义回调函数注册提示信息
+    setMessage(rule, message) {
+        this.handlerNotice[rule] = message;
+        return this;
+    }
+    // 获取校验规则的提示信息
+    getMessage(msg, method) {
+
+        let res;
+        if( msg ) {
+            res = msg[method] || notices[method] || this.handlerNotice[method];
+        } else {
+            res = notices[method] || this.handlerNotice[method];
+        }
+        if( !res && DEBUG ) {
+            console.warn(`未找到指定方法: ${method} 的提示信息`);
+        }
+        
+        return res;
     }
     _validateField(field) {
 
@@ -288,7 +409,7 @@ class Validator {
                 method = method.substring(1, method.length);
             }
 
-            if ( typeof this._testHooks[method] === 'function' ) {
+            if ( typeof(this._testHooks[method]) === 'function' ) {
 
                 message = this.getMessage(msg, method);
                 if (!this._testHooks[method].apply(this, [field, param])) {
@@ -299,13 +420,13 @@ class Validator {
 
                 method = method.substring(9, method.length);
                 message = this.getMessage(msg, method);
-                if ( typeof this.handlers[method] === 'function' ) {
+                if ( typeof(this.handlers[method]) === 'function' ) {
                     
                     if (this.handlers[method].apply(this, [fieldValue, param, field]) === false) {
                         failed = true;
                     }
                     
-                } else if( typeof this.handlers[method] === 'object' ) {
+                } else if( typeof(this.handlers[method]) === 'object' ) {
                     
                     failed = true;
                     pending = true;
@@ -361,124 +482,76 @@ class Validator {
         }
 
     }
-    // 表单验证
-    validateForm(evt) {
+    // 为验证组件添加待校验元素，这里称为 field
+    _addField( field ){
 
-        let errors = this.errors;
-        let fields = this.fields;
+        const {id, name, msg} = field;
+        const nameValue = field.id ? field.id : field.name;
+        const onblur = field.onblur ? field.onblur : true;
+        const element = this.form[nameValue];
+        const type = (element.length > 0) ? element[0].type : element.type;
+        let fieldObject = {
 
-        errors.clear();
-        if( DEBUG ) console.log('>>>>> submit event triggered >>>>>>');
+            eleTag: nameValue,
+            id: id,
+            name: name,
+            msg: msg,
+            element: element,
+            rules: null,
+            fieldValue: null,
+            type: type,
+            checked: null,
+            onblur: onblur
 
-        for( let [key, value] of fields) {
-            let field = value;
-            let element = this.form[field.eleTag];
+        }
+        // 下面代码为指定元素绑定规则
+        let rules = field.rules.split('|');
+        fieldObject.rules = rules;
 
-            if( DEBUG ) {
-                console.log(`validating ${key}`);
-            }
+        // 下面代码绑定 onblur 事件监听器
+        if( fieldObject.onblur === true ) {
 
-            if (element && element !== undefined) {
-                field.fieldValue = attributeValue(element, 'value');
-                field.checked = attributeValue(element, 'checked');
-                try {
-                    this._validateField(field);
-                } catch (e) {
-                    console.error(e);
-                    return;
+            if( field.id ) {
+                
+                if( DEBUG ) console.log(`adding onblur to id: ${field.id}`);
+                document.getElementById(field.id).addEventListener("blur", () => {
+                    // 如果点击了提交按钮，处理提交事件
+                    if(window.event.relatedTarget && window.event.relatedTarget.id === this.submitId) {
+                        // this.validateForm();
+                        return;
+                    }
+                    this.blurValidate( field.id );
+                } , true);
+
+            } else {
+
+                if( DEBUG ) console.log(`adding onblur to name: ${field.name}`);
+                let target = document.getElementsByName(field.name);
+                for(let i = 0; i < target.length; i++) {
+                    document.getElementsByName(field.name)[i].addEventListener("blur", () => {
+                        if(window.event.relatedTarget && window.event.relatedTarget.id === this.submitId) { 
+                            return;
+                        }
+                        this.blurValidate( field.name, true);
+                    }, true);
                 }
-            }
 
-        }
-
-        if( DEBUG ) console.log('>>>>>> invoking callback! >>>>>>')
-        this.callback(errors, evt, handleSubmit.bind(this, fields, errors));
-        if( !this.onlyValidate && !this.async ) handleSubmit(fields, errors);
-        if (errors.size > 0) {
-            if (evt && evt.preventDefault) {
-                evt.preventDefault();
-            } else if (event) {
-                // 适配 IE 
-                event.returnValue = false;
             }
         }
-    }
-    // 动态验证
-    blurValidate( eleTag, isName = false ) {
-        if( DEBUG ) console.log('>>>>> onblur event triggered >>>>>>');
 
-        let field = this.fields.get(eleTag);
-        let element = field.element;
-        field.fieldValue = attributeValue(element, 'value');
-        field.checked = attributeValue(element, 'checked');
-        field.element = element;
-        this.errors.delete(eleTag);
-
-        try {
-            this._validateField(field);
-        } catch (e) {
-            console.error(e);
-            return;
-        }
-        
-        if( this.onlyValidate ) return;
-
-        let nameValue = isName ? field.name : field.id;
-
-        if( this.errors.has(eleTag) ) {
-            handleSingleInput(nameValue, this.errors);
-        } else {
-            handleSingleInput(nameValue, this.errors);
-        }
-        return;
-    }
-    // 调用组件作简单验证(一般的正则校验)
-    check(rule, stringToValidate) {
-        let fun = this._testHooks[rule];
-        let field = {fieldValue: stringToValidate};
-        return fun(field);
-    }
-    // 为某个 field 注册自定义回调函数
-    registerCallback(name, handler, isAsync) {
-        try {
-            checkCustomHandler(name, handler);
-        } catch (e) {
-            console.error(e);
-            return false;
-        }
-        if ( isAsync ) {
-            this.handlers[name] = {
-                isAsync: isAsync,
-                handler: handler
-            };
-        } else {
-            this.handlers[name] = handler;
+        if( DEBUG ) {
+            console.log(`>>>>> adding field: ${nameValue}`);
         }
 
-        // 支持链式调用
-        return this;
-    }
-    // 为某个自定义回调函数注册提示信息
-    setMessage(rule, message) {
-        this.handlerNotice[rule] = message;
-        return this;
-    }
-    getMessage(msg, method) {
-        let res;
-        if( msg ) {
-            res = msg[method] || notices[method] || this.handlerNotice[method];
-        } else {
-            res = notices[method] || this.handlerNotice[method];
-        }
-        if( !res && DEBUG ) {
-            console.warn(`未找到指定方法: ${method} 的提示信息`);
-        }
-        
-        return res;
-    }
-    rangeCheck(str, param, type) {
+        this.fields.set(nameValue, fieldObject);
 
-        const range = param.split(',');
+    }
+    // 范围校验
+    _rangeCheck(str, param, type) {
+
+        let range = param.split(',');
+        range[0] = trim(range[0]);
+        range[1] = trim(range[1]);
         if( type === 'int' ) {
 
             const fieldValue = parseInt(str, 10);
@@ -507,6 +580,24 @@ class Validator {
     }
 
 }
+
+// 获取表单元素的特定属性
+function attributeValue(element, attributeName) {
+    var i;
+    if ((element.length > 0) && (element[0].type === 'radio' || element[0].type === 'checkbox')) {
+        for (i = 0; i < element.length; i++) {
+            if (element[i].checked) {
+                return element[i][attributeName];
+            }
+        }
+        return;
+    }
+    if(typeof(element[attributeName]) === 'string') {
+        return trim(element[attributeName]);
+    } else {
+        return element[attributeName];
+    }
+};
 
 export {
     DEBUG,

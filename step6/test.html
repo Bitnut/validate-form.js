@@ -79,7 +79,7 @@
     
     // 简易用法
     let v_easy = new Validator();
-    v_easy.check('isNumeric', 11111); // true
+    console.log(v_easy.check('isEmail(10,20)', '11@qq.comfff')); // true
 
     // 复杂用法
     let v = new Validator({ formId: "example_form", submitId: "newbutton-1", onlyValidate: false, async: true}, [
@@ -104,7 +104,7 @@
         },
         {
             id: 'score',
-            rules: 'required|isFloat(0,100)',
+            rules: 'required|isFloat( 0 , 100  )',
             msg: { isFloat: '成绩须填写0-100间的 float' },
         },
         {
@@ -124,6 +124,7 @@
         evt.preventDefault();
         setTimeout(() => {
                 callback();
+                console.log('finished!');
             }, 2000);
 
     });

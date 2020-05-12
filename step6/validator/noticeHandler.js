@@ -43,7 +43,7 @@ function handleSingleInput( nameValue, errors ) {
     let ele = document.getElementById(`${nameValue}-span`);
     let errObject = errors.get(nameValue);
     if( !errObject) {
-        console.log(notices['success']);
+        if ( DEBUG ) console.log(notices['success']);
         ele.innerHTML = notices['success'];
         ele.style.display = 'inline';
         return;

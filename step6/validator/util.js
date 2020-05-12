@@ -6,7 +6,7 @@ function initCheck(formInfo, customRules, callback) {
     checkFormInfo(formInfo);
     checkCustomRules(customRules);
     // 检查 callback 类型
-    if( typeof callback !== 'function') {
+    if( typeof(callback) !== 'function') {
         throw TypeError( `传入的回调类型不是函数，请检查传参！`);
     }
 
@@ -23,7 +23,7 @@ function checkFormInfo(formInfo) {
     if ( !document.getElementById(submitId)) {
         throw ReferenceError( `提交按钮: \[ ${submitId} \] 不存在，请检查传参！`);
     }
-    if ( onlyValidate && typeof onlyValidate !== 'boolean') {
+    if ( onlyValidate && typeof(onlyValidate) !== 'boolean') {
         throw TypeError(`onlyValidate 参数不是 boolean 值，请检查传参！`);
     }
 
@@ -51,94 +51,23 @@ function checkCustomRules(customRules) {
 }
 
 function checkCustomHandler(name, handler) {
-    if (!(name && typeof name === 'string' && handler && typeof handler === 'function')) {
+    if (!(name && typeof(name)=== 'string' && handler && typeof(handler)=== 'function')) {
         throw TypeError('注册回调函数时传参规则错误！');
     }
 }
 
-// 获取表单元素的特定属性
-function attributeValue(element, attributeName) {
-    var i;
-    if ((element.length > 0) && (element[0].type === 'radio' || element[0].type === 'checkbox')) {
-        for (i = 0; i < element.length; i++) {
-            if (element[i].checked) {
-                return element[i][attributeName];
-            }
-        }
-        return;
-    }
-    return element[attributeName];
-};
-
-// 为验证组件添加待校验元素，这里称为 field
-function addField( self, field ){
-
-    const {id, name, msg} = field;
-    const nameValue = field.id ? field.id : field.name;
-    const onblur = field.onblur ? field.onblur : true;
-    const element = self.form[nameValue];
-    const type = (element.length > 0) ? element[0].type : element.type;
-    let fieldObject = {
-
-        eleTag: nameValue,
-        id: id,
-        name: name,
-        msg: msg,
-        element: element,
-        rules: null,
-        fieldValue: null,
-        type: type,
-        checked: null,
-        onblur: onblur
-
-    }
-    // 下面代码为指定元素绑定规则
-    let rules = field.rules.split('|');
-    fieldObject.rules = rules;
-
-    // 下面代码绑定 onblur 事件监听器
-    if( fieldObject.onblur === true ) {
-
-        if( field.id ) {
-            
-            if( DEBUG ) console.log(`adding onblur to id: ${field.id}`);
-            document.getElementById(field.id).addEventListener("blur", function(evt) {
-                // 如果点击了提交按钮，处理提交事件
-                if(window.event.relatedTarget && window.event.relatedTarget.id === self.submitId) {
-                    // self.validateForm();
-                    return;
-                }
-                self.blurValidate( field.id );
-            } , true);
-
-        } else {
-
-            if( DEBUG ) console.log(`adding onblur to name: ${field.name}`);
-            let target = document.getElementsByName(field.name);
-            for(let i = 0; i < target.length; i++) {
-                document.getElementsByName(field.name)[i].addEventListener("blur", function() {
-                    if(window.event.relatedTarget && window.event.relatedTarget.id === self.submitId) { 
-                        return;
-                    }
-                    self.blurValidate( field.name, true);
-                }, true);
-            }
-
-        }
-    }
-
-    if( DEBUG ) {
-        console.log(`>>>>> adding field: ${nameValue}`);
-    }
-
-    self.fields.set(nameValue, fieldObject);
-
+function trim(str) {
+    
+    str = str.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+/, '');
+    let ws = /\s/;
+    let i = str.length;
+    while (ws.test(str.charAt(--i)));
+    return str.slice(0, i + 1);
+  
 }
-
 
 export {
     initCheck,
-    attributeValue,
-    addField,
     checkCustomHandler,
+    trim
 }
