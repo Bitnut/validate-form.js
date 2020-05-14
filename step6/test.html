@@ -144,7 +144,7 @@
     }).setMessage('check_password', 'Please choose a stronger password using at least 111 letters.');
     // setMessage('check_password', 'Please choose a stronger password using at least 111 letters.');
     
-    v.registerCallback('check_phone', function(fieldVaule, length, callback, field) {
+    v.registerCallback('check_phone', function(fieldVaule, length, callback) {
         
         if (!v.check('isNumeric', length)) {
             return false;
