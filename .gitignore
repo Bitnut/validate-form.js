@@ -2,3 +2,5 @@ validate.js
 validate1.js
 test.js
 *.drawio
+node_modules
+package-lock.json
