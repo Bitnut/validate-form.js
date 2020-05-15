@@ -4,3 +4,4 @@ test.js
 *.drawio
 node_modules
 package-lock.json
+charts

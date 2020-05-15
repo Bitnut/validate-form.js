@@ -203,12 +203,11 @@ class Validator {
             return INIT_FAILED;
         }
 
-        const { formId, submitId, onlyValidate, async } = formInfo;
+        const { formId, submitId, onlyValidate } = formInfo;
 
         // 添加表单、 id 提交按钮 id 、验证字段、callback、handlers
         this.formId = formId;
         this.submitId = submitId;
-        this.async = async || true;
         this.onlyValidate = onlyValidate || false;
 
         // 保存页面的所有待验证 field 和 错误
@@ -260,7 +259,11 @@ class Validator {
             }
 
             if (element && element !== undefined) {
-                field.fieldValue = attributeValue(element, 'value');
+                if (field.trim) {
+                    field.fieldValue = trim(attributeValue(element, 'value'));
+                } else {
+                    field.fieldValue = attributeValue(element, 'value');
+                }
                 field.checked = attributeValue(element, 'checked');
                 try {
                     this._validateField(field);
@@ -273,21 +276,19 @@ class Validator {
 
         if (DEBUG) console.log('>>>>>> invoking callback! >>>>>>');
 
-        if (this.async) {
+        if (evt && evt.preventDefault) {
             evt.preventDefault();
-            this.callback(errors, evt, handleSubmit.bind(this, fields, errors));
-        } else {
-            this.callback(errors, evt, handleSubmit.bind(this, fields, errors));
+        } else if (event) {
+            // 适配 IE
+            event.returnValue = false;
         }
 
-        if (!this.onlyValidate && !this.async) handleSubmit(fields, errors);
-        if (errors.size > 0) {
-            if (evt && evt.preventDefault) {
-                evt.preventDefault();
-            } else if (event) {
-                // 适配 IE
-                event.returnValue = false;
-            }
+        this.callback(errors, evt, handleSubmit.bind(this, fields, errors));
+
+        if (!this.onlyValidate && this.callback === defaultCallback) {
+            console.log('validating');
+
+            handleSubmit.call(this, fields, errors);
         }
     }
 
@@ -297,7 +298,11 @@ class Validator {
 
         const field = this.fields.get(eleTag);
         const element = field.element;
-        field.fieldValue = attributeValue(element, 'value');
+        if (field.trim) {
+            field.fieldValue = trim(attributeValue(element, 'value'));
+        } else {
+            field.fieldValue = attributeValue(element, 'value');
+        }
         field.checked = attributeValue(element, 'checked');
         field.element = element;
         this.errors.delete(eleTag);
@@ -479,6 +484,10 @@ class Validator {
         const onblur = field.onblur ? field.onblur : true;
         const element = this.form[nameValue];
         const type = (element.length > 0) ? element[0].type : element.type;
+        let trim = field.trim ? field.trim : true;
+        if (type === 'textarea' || type === 'radio' || type === 'checkbox') {
+            trim = false;
+        }
         const fieldObject = {
 
             eleTag: nameValue,
@@ -490,7 +499,8 @@ class Validator {
             fieldValue: null,
             type: type,
             checked: null,
-            onblur: onblur
+            onblur: onblur,
+            trim: trim
 
         };
         // 下面代码为指定元素绑定规则
@@ -533,8 +543,6 @@ class Validator {
     // 范围校验
     _rangeCheck (str, param, type) {
         const range = param.split(',');
-        range[0] = trim(range[0]);
-        range[1] = trim(range[1]);
 
         if (type === 'int') {
             const fieldValue = parseInt(str, 10);
@@ -567,11 +575,7 @@ function attributeValue (element, attributeName) {
         }
         return;
     }
-    if (typeof (element[attributeName]) === 'string') {
-        return trim(element[attributeName]);
-    } else {
-        return element[attributeName];
-    }
+    return element[attributeName];
 };
 
 export {

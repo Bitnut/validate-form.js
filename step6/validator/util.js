@@ -22,6 +22,7 @@ function checkFormInfo (formInfo) {
         throw TypeError('onlyValidate 参数不是 boolean 值，请检查传参！');
     }
 }
+
 // 对传入的 customRules 作校验
 function checkCustomRules (customRules) {
     for (let i = 0; i < customRules.length; i++) {

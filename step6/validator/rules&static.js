@@ -23,7 +23,9 @@ const notices = {
     equal: '两次密码输入需一致',
     success: '成功！',
     required: '不能为空！',
-    default: '您需要选择一个非默认项'
+    default: '您需要选择一个非默认项',
+    minLength: '输入的字符太少！',
+    maxLength: '输入的字符太多！'
 
 };
 

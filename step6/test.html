@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title></title>
 </head>
 
 <body>
@@ -70,22 +70,26 @@
                     </td>
                 </tr>
             </form>
-            <button type="button" id = "newbutton-2">处理表单</button>
         </table>
+        <div>
+            <textarea id="textarea" form="example_form" cols="20" rows="5"></textarea>
+            <span style="color:red;font-size: 12px;display: none;" class="tishi" id = "textarea-span"> </span>
+            <br>
+            <button type="button" id = "newbutton-2">处理表单</button>
+        </div>
     </div>  
 </body>
 <script async type="module" >
-    import {Validator} from './validator/validator.js'
-    
+    const Validator = ReolinkFE.Validator;
     // 简易用法
     let v_easy = new Validator();
     console.log(v_easy.check('isEmail(10,20)', '11@qq.comfff')); // true
 
     // 复杂用法
-    let v = new Validator({ formId: "example_form", submitId: "newbutton-1", onlyValidate: false, async: true}, [
+    let v = new Validator({ formId: "example_form", submitId: "newbutton-1", onlyValidate: false }, [
         {
             id: 'email-1',
-            msg: {isEmail: '请输入合法的邮箱地址!'},
+            msg: {isEmail: '请输入合法的邮箱地址!'}, 
             rules: 'required|isEmail(10,20)',
         },
         {
@@ -118,15 +122,17 @@
         {
             id: 'sheng',
             rules: 'default(dd)'
+        },
+        {
+            id: 'textarea',
+            rules: 'required|minLength(10)|maxLength(20)',
+            trim: false
         }
     ], function(err, evt, callback){
-
-        evt.preventDefault();
         setTimeout(() => {
-                callback();
-                console.log('finished!');
-            }, 2000);
-
+            console.log('validate complete');
+            callback('toast');
+        }, 2000);
     });
 
     //console.log(v.check('isSaveInt',15197458450067));
