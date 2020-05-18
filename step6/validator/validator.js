@@ -203,11 +203,10 @@ class Validator {
             return INIT_FAILED;
         }
 
-        const { formId, submitId, onlyValidate } = formInfo;
+        const { formId, onlyValidate } = formInfo;
 
         // 添加表单、 id 提交按钮 id 、验证字段、callback、handlers
         this.formId = formId;
-        this.submitId = submitId;
         this.onlyValidate = onlyValidate || false;
 
         // 保存页面的所有待验证 field 和 错误
@@ -512,11 +511,6 @@ class Validator {
             if (field.id) {
                 if (DEBUG) console.log(`adding onblur to id: ${field.id}`);
                 document.getElementById(field.id).addEventListener('blur', () => {
-                    // 如果点击了提交按钮，处理提交事件
-                    if (window.event.relatedTarget && window.event.relatedTarget.id === this.submitId) {
-                        // this.validateForm();
-                        return;
-                    }
                     this.blurValidate(field.id);
                 }, true);
             } else {
@@ -524,9 +518,6 @@ class Validator {
                 const target = document.getElementsByName(field.name);
                 for (let i = 0; i < target.length; i++) {
                     document.getElementsByName(field.name)[i].addEventListener('blur', () => {
-                        if (window.event.relatedTarget && window.event.relatedTarget.id === this.submitId) {
-                            return;
-                        }
                         this.blurValidate(field.name, true);
                     }, true);
                 }

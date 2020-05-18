@@ -9,14 +9,11 @@ function initCheck (formInfo, customRules, callback) {
 }
 // 校验表单信息
 function checkFormInfo (formInfo) {
-    const { formId, submitId, onlyValidate } = formInfo;
+    const { formId, onlyValidate } = formInfo;
 
     // 检验传入表单名字、提交按钮是否合法
     if (!document.getElementById(formId)) {
         throw ReferenceError(`指定表单: [ ${formId} ] 不存在，请检查传参！`);
-    }
-    if (!document.getElementById(submitId)) {
-        throw ReferenceError(`提交按钮: [ ${submitId} ] 不存在，请检查传参！`);
     }
     if (onlyValidate && typeof (onlyValidate) !== 'boolean') {
         throw TypeError('onlyValidate 参数不是 boolean 值，请检查传参！');

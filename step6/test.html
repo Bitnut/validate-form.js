@@ -86,7 +86,7 @@
     console.log(v_easy.check('isEmail(10,20)', '11@qq.comfff')); // true
 
     // 复杂用法
-    let v = new Validator({ formId: "example_form", submitId: "newbutton-1", onlyValidate: false }, [
+    let v = new Validator({ formId: "example_form", onlyValidate: false }, [
         {
             id: 'email-1',
             msg: {isEmail: '请输入合法的邮箱地址!'}, 
@@ -167,7 +167,7 @@
             }, 2000);
         console.log('fetching data'); 
 
-    }, true).setMessage('check_phone', 'Please enter a correct phone number using 11 number.');
+    }).setMessage('check_phone', 'Please enter a correct phone number using 11 number.');
     
     // 校验后异步
     let click = document.getElementById('newbutton-2').addEventListener('click', function(){
