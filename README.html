@@ -1,0 +1,653 @@
+<!DOCTYPE html><html><head>
+      <title>README</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <link rel="stylesheet" href="file:///c:\Users\BAICHUAN-58\.vscode\extensions\shd101wyy.markdown-preview-enhanced-0.5.9\node_modules\@shd101wyy\mume\dependencies\katex\katex.min.css">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <style>
+      /**
+ * prism.js Github theme based on GitHub's theme.
+ * @author Sam Clarke
+ */
+code[class*="language-"],
+pre[class*="language-"] {
+  color: #333;
+  background: none;
+  font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.4;
+
+  -moz-tab-size: 8;
+  -o-tab-size: 8;
+  tab-size: 8;
+
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+  padding: .8em;
+  overflow: auto;
+  /* border: 1px solid #ddd; */
+  border-radius: 3px;
+  /* background: #fff; */
+  background: #f5f5f5;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+  padding: .1em;
+  border-radius: .3em;
+  white-space: normal;
+  background: #f5f5f5;
+}
+
+.token.comment,
+.token.blockquote {
+  color: #969896;
+}
+
+.token.cdata {
+  color: #183691;
+}
+
+.token.doctype,
+.token.punctuation,
+.token.variable,
+.token.macro.property {
+  color: #333;
+}
+
+.token.operator,
+.token.important,
+.token.keyword,
+.token.rule,
+.token.builtin {
+  color: #a71d5d;
+}
+
+.token.string,
+.token.url,
+.token.regex,
+.token.attr-value {
+  color: #183691;
+}
+
+.token.property,
+.token.number,
+.token.boolean,
+.token.entity,
+.token.atrule,
+.token.constant,
+.token.symbol,
+.token.command,
+.token.code {
+  color: #0086b3;
+}
+
+.token.tag,
+.token.selector,
+.token.prolog {
+  color: #63a35c;
+}
+
+.token.function,
+.token.namespace,
+.token.pseudo-element,
+.token.class,
+.token.class-name,
+.token.pseudo-class,
+.token.id,
+.token.url-reference .token.variable,
+.token.attr-name {
+  color: #795da3;
+}
+
+.token.entity {
+  cursor: help;
+}
+
+.token.title,
+.token.title .token.punctuation {
+  font-weight: bold;
+  color: #1d3e81;
+}
+
+.token.list {
+  color: #ed6a43;
+}
+
+.token.inserted {
+  background-color: #eaffea;
+  color: #55a532;
+}
+
+.token.deleted {
+  background-color: #ffecec;
+  color: #bd2c00;
+}
+
+.token.bold {
+  font-weight: bold;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+
+/* JSON */
+.language-json .token.property {
+  color: #183691;
+}
+
+.language-markup .token.tag .token.punctuation {
+  color: #333;
+}
+
+/* CSS */
+code.language-css,
+.language-css .token.function {
+  color: #0086b3;
+}
+
+/* YAML */
+.language-yaml .token.atrule {
+  color: #63a35c;
+}
+
+code.language-yaml {
+  color: #183691;
+}
+
+/* Ruby */
+.language-ruby .token.function {
+  color: #333;
+}
+
+/* Markdown */
+.language-markdown .token.url {
+  color: #795da3;
+}
+
+/* Makefile */
+.language-makefile .token.symbol {
+  color: #795da3;
+}
+
+.language-makefile .token.variable {
+  color: #183691;
+}
+
+.language-makefile .token.builtin {
+  color: #0086b3;
+}
+
+/* Bash */
+.language-bash .token.keyword {
+  color: #0086b3;
+}
+
+/* highlight */
+pre[data-line] {
+  position: relative;
+  padding: 1em 0 1em 3em;
+}
+pre[data-line] .line-highlight-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: transparent;
+  display: block;
+  width: 100%;
+}
+
+pre[data-line] .line-highlight {
+  position: absolute;
+  left: 0;
+  right: 0;
+  padding: inherit 0;
+  margin-top: 1em;
+  background: hsla(24, 20%, 50%,.08);
+  background: linear-gradient(to right, hsla(24, 20%, 50%,.1) 70%, hsla(24, 20%, 50%,0));
+  pointer-events: none;
+  line-height: inherit;
+  white-space: pre;
+}
+
+pre[data-line] .line-highlight:before, 
+pre[data-line] .line-highlight[data-end]:after {
+  content: attr(data-start);
+  position: absolute;
+  top: .4em;
+  left: .6em;
+  min-width: 1em;
+  padding: 0 .5em;
+  background-color: hsla(24, 20%, 50%,.4);
+  color: hsl(24, 20%, 95%);
+  font: bold 65%/1.5 sans-serif;
+  text-align: center;
+  vertical-align: .3em;
+  border-radius: 999px;
+  text-shadow: none;
+  box-shadow: 0 1px white;
+}
+
+pre[data-line] .line-highlight[data-end]:after {
+  content: attr(data-end);
+  top: auto;
+  bottom: .4em;
+}html body{font-family:"Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif;font-size:16px;line-height:1.6;color:#333;background-color:#fff;overflow:initial;box-sizing:border-box;word-wrap:break-word}html body>:first-child{margin-top:0}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{line-height:1.2;margin-top:1em;margin-bottom:16px;color:#000}html body h1{font-size:2.25em;font-weight:300;padding-bottom:.3em}html body h2{font-size:1.75em;font-weight:400;padding-bottom:.3em}html body h3{font-size:1.5em;font-weight:500}html body h4{font-size:1.25em;font-weight:600}html body h5{font-size:1.1em;font-weight:600}html body h6{font-size:1em;font-weight:600}html body h1,html body h2,html body h3,html body h4,html body h5{font-weight:600}html body h5{font-size:1em}html body h6{color:#5c5c5c}html body strong{color:#000}html body del{color:#5c5c5c}html body a:not([href]){color:inherit;text-decoration:none}html body a{color:#08c;text-decoration:none}html body a:hover{color:#00a3f5;text-decoration:none}html body img{max-width:100%}html body>p{margin-top:0;margin-bottom:16px;word-wrap:break-word}html body>ul,html body>ol{margin-bottom:16px}html body ul,html body ol{padding-left:2em}html body ul.no-list,html body ol.no-list{padding:0;list-style-type:none}html body ul ul,html body ul ol,html body ol ol,html body ol ul{margin-top:0;margin-bottom:0}html body li{margin-bottom:0}html body li.task-list-item{list-style:none}html body li>p{margin-top:0;margin-bottom:0}html body .task-list-item-checkbox{margin:0 .2em .25em -1.8em;vertical-align:middle}html body .task-list-item-checkbox:hover{cursor:pointer}html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#5c5c5c;border-left:4px solid #d6d6d6}html body blockquote>:first-child{margin-top:0}html body blockquote>:last-child{margin-bottom:0}html body hr{height:4px;margin:32px 0;background-color:#d6d6d6;border:0 none}html body table{margin:10px 0 15px 0;border-collapse:collapse;border-spacing:0;display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}html body table th{font-weight:bold;color:#000}html body table td,html body table th{border:1px solid #d6d6d6;padding:6px 13px}html body dl{padding:0}html body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:bold}html body dl dd{padding:0 16px;margin-bottom:16px}html body code{font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:.85em !important;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em 0}html body code::before,html body code::after{letter-spacing:-0.2em;content:"\00a0"}html body pre>code{padding:0;margin:0;font-size:.85em !important;word-break:normal;white-space:pre;background:transparent;border:0}html body .highlight{margin-bottom:16px}html body .highlight pre,html body pre{padding:1em;overflow:auto;font-size:.85em !important;line-height:1.45;border:#d6d6d6;border-radius:3px}html body .highlight pre{margin-bottom:0;word-break:normal}html body pre code,html body pre tt{display:inline;max-width:initial;padding:0;margin:0;overflow:initial;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}html body pre code:before,html body pre tt:before,html body pre code:after,html body pre tt:after{content:normal}html body p,html body blockquote,html body ul,html body ol,html body dl,html body pre{margin-top:0;margin-bottom:16px}html body kbd{color:#000;border:1px solid #d6d6d6;border-bottom:2px solid #c7c7c7;padding:2px 4px;background-color:#f0f0f0;border-radius:3px}@media print{html body{background-color:#fff}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{color:#000;page-break-after:avoid}html body blockquote{color:#5c5c5c}html body pre{page-break-inside:avoid}html body table{display:table}html body img{display:block;max-width:100%;max-height:100%}html body pre,html body code{word-wrap:break-word;white-space:pre}}.markdown-preview{width:100%;height:100%;box-sizing:border-box}.markdown-preview .pagebreak,.markdown-preview .newpage{page-break-before:always}.markdown-preview pre.line-numbers{position:relative;padding-left:3.8em;counter-reset:linenumber}.markdown-preview pre.line-numbers>code{position:relative}.markdown-preview pre.line-numbers .line-numbers-rows{position:absolute;pointer-events:none;top:1em;font-size:100%;left:0;width:3em;letter-spacing:-1px;border-right:1px solid #999;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.markdown-preview pre.line-numbers .line-numbers-rows>span{pointer-events:none;display:block;counter-increment:linenumber}.markdown-preview pre.line-numbers .line-numbers-rows>span:before{content:counter(linenumber);color:#999;display:block;padding-right:.8em;text-align:right}.markdown-preview .mathjax-exps .MathJax_Display{text-align:center !important}.markdown-preview:not([for="preview"]) .code-chunk .btn-group{display:none}.markdown-preview:not([for="preview"]) .code-chunk .status{display:none}.markdown-preview:not([for="preview"]) .code-chunk .output-div{margin-bottom:16px}.scrollbar-style::-webkit-scrollbar{width:8px}.scrollbar-style::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}.scrollbar-style::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,0.66);border:4px solid rgba(150,150,150,0.66);background-clip:content-box}html body[for="html-export"]:not([data-presentation-mode]){position:relative;width:100%;height:100%;top:0;left:0;margin:0;padding:0;overflow:auto}html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{position:relative;top:0}@media screen and (min-width:914px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{padding:2em calc(50% - 457px + 2em)}}@media screen and (max-width:914px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{font-size:14px !important;padding:1em}}@media print{html body[for="html-export"]:not([data-presentation-mode]) #sidebar-toc-btn{display:none}}html body[for="html-export"]:not([data-presentation-mode]) #sidebar-toc-btn{position:fixed;bottom:8px;left:8px;font-size:28px;cursor:pointer;color:inherit;z-index:99;width:32px;text-align:center;opacity:.4}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] #sidebar-toc-btn{opacity:1}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc{position:fixed;top:0;left:0;width:300px;height:100%;padding:32px 0 48px 0;font-size:14px;box-shadow:0 0 4px rgba(150,150,150,0.33);box-sizing:border-box;overflow:auto;background-color:inherit}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar{width:8px}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,0.66);border:4px solid rgba(150,150,150,0.66);background-clip:content-box}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc a{text-decoration:none}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc ul{padding:0 1.6em;margin-top:.8em}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc li{margin-bottom:.8em}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc ul{list-style-type:none}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{left:300px;width:calc(100% -  300px);padding:2em calc(50% - 457px -  150px);margin:0;box-sizing:border-box}@media screen and (max-width:1274px){html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{width:100%}}html body[for="html-export"]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .markdown-preview{left:50%;transform:translateX(-50%)}html body[for="html-export"]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .md-sidebar-toc{display:none}
+/* Please visit the URL below for more information: */
+/*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
+
+      </style>
+    </head>
+    <body for="html-export">
+      <div class="mume markdown-preview  ">
+      <div><h3 class="mume-header" id="%E4%BB%8B%E7%BB%8D%E4%B8%80%E4%B8%8B%E7%BB%84%E4%BB%B6">&#x4ECB;&#x7ECD;&#x4E00;&#x4E0B;&#x7EC4;&#x4EF6;&#xFF1A;</h3>
+
+<p>&#x4E00;&#x4E2A; JavaScript &#x8868;&#x5355;&#x6821;&#x9A8C;&#x5E93;&#xFF0C;&#x53D7;&#x5230;&#x8BF8;&#x591A;&#x7C7B;&#x4F3C;&#x9879;&#x76EE;&#x7684;&#x542F;&#x53D1;&#x3002;&#x5B9E;&#x73B0;&#x8F7B;&#x91CF;&#x7EA7;&#x7684;&#x8868;&#x5355;&#x6821;&#x9A8C;&#x529F;&#x80FD;&#x3002;&#x6CA1;&#x6709;&#x4EFB;&#x4F55;&#x5916;&#x90E8;&#x4F9D;&#x8D56;&#x3002;</p>
+<h3 class="mume-header" id="%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%BC%80%E5%8F%91%E8%BF%99%E4%B8%AA%E7%BB%84%E4%BB%B6">&#x4E3A;&#x4EC0;&#x4E48;&#x8981;&#x5F00;&#x53D1;&#x8FD9;&#x4E2A;&#x7EC4;&#x4EF6;&#xFF1F;</h3>
+
+<h6 class="mume-header" id="%E5%BC%80%E5%8F%91%E8%80%85">&#x5F00;&#x53D1;&#x8005;&#xFF1A;</h6>
+
+<ul>
+<li>&#x6574;&#x5408;&#x9875;&#x9762;&#x4E2D;&#x8868;&#x5355;&#x7684;&#x9A8C;&#x8BC1;&#x89C4;&#x5219;&#xFF0C;&#x96C6;&#x4E2D;&#x4E66;&#x5199;&#x65B9;&#x4FBF;&#x8C03;&#x8BD5;</li>
+<li>&#x7528;&#x9ED8;&#x8BA4;&#x7684;&#x5E93;&#x51CF;&#x5C11;&#x81EA;&#x5DF1;&#x7F16;&#x5199;&#x6821;&#x9A8C;&#x4EE3;&#x7801;&#x51FA;&#x9519;&#x7684;&#x53EF;&#x80FD;</li>
+<li>&#x66F4;&#x52A0;&#x7B80;&#x6D01;&#x7684;&#x89C4;&#x5219;&#x7F16;&#x5199;&#x548C;&#x76F4;&#x89C2;&#x7684;&#x7406;&#x89E3;&#xFF0C;&#x5E2E;&#x52A9;&#x5FEB;&#x901F; review &#x4EE3;&#x7801;&#x4E2D;&#x6821;&#x9A8C;&#x8868;&#x5355;&#x7684;&#x90E8;&#x5206;</li>
+<li>&#x51CF;&#x8F7B;&#x5F00;&#x53D1;&#x4EBA;&#x5458;&#x5BF9;&#x6821;&#x9A8C;&#x654F;&#x611F;&#x5C42;&#x6B21;&#x3001;&#x6821;&#x9A8C;&#x903B;&#x8F91;&#x7684;&#x5173;&#x6CE8;&#xFF0C;&#x53EA;&#x9700;&#x8981;&#x7531;&#x5F00;&#x53D1;&#x8005;&#x6307;&#x5B9A;&#x5373;&#x53EF;&#xFF08;&#x5F85;&#x5B9E;&#x73B0;&#xFF09;</li>
+<li>&#x53EA;&#x9700;&#x8981;&#x5173;&#x5FC3;&#x5982;&#x4F55;&#x5904;&#x7406;&#x586B;&#x5199;&#x6B63;&#x786E;&#x7684;&#x8868;&#x5355;&#x6570;&#x636E;&#xFF0C;&#x65E0;&#x9700;&#x81EA;&#x5DF1;&#x7F16;&#x5199;&#x6821;&#x9A8C;&#x903B;&#x8F91;&#x548C;&#x5904;&#x7406;&#x5F02;&#x5E38;</li>
+</ul>
+<h6 class="mume-header" id="%E9%A1%B9%E7%9B%AE">&#x9879;&#x76EE;&#xFF1A;</h6>
+
+<ul>
+<li>&#x5C06;&#x6821;&#x9A8C;&#x529F;&#x80FD;&#x89E3;&#x8026;&#x51FA;&#x6765;&#xFF0C;&#x7B26;&#x5408;&#x6A21;&#x5757;&#x5316;&#x601D;&#x60F3;</li>
+<li>&#x7EF4;&#x62A4;&#x548C;&#x7F16;&#x5199;&#x597D;&#x7684;&#x89C4;&#x5219;&#xFF0C;&#x51CF;&#x8F7B;&#x540E;&#x671F;&#x7EF4;&#x62A4;&#x96BE;&#x5EA6;&#x3002;&#x5DEE;&#x7F3A;&#x8865;&#x6F0F;&#x7684;&#x65F6;&#x5019;&#x66F4;&#x5FEB;&#x6377;&#xFF0C;&#x66F4;&#x5C11;&#x6D89;&#x53CA;&#x6821;&#x9A8C;&#x903B;&#x8F91;</li>
+<li>&#x53EA;&#x8981;&#x89C4;&#x5219;&#x4EE3;&#x7801;&#x548C;&#x903B;&#x8F91;&#x7ECF;&#x8FC7;&#x5145;&#x5206;&#x6D4B;&#x8BD5;&#xFF0C;&#x90A3;&#x4E48;&#x8FD9;&#x4E2A;&#x7EC4;&#x4EF6;&#x7684;&#x4F1A;&#x975E;&#x5E38;&#x53EF;&#x9760;&#xFF0C;&#x63D0;&#x5347;&#x4E86;&#x6574;&#x4E2A;&#x9879;&#x76EE;&#x7684;&#x5065;&#x58EE;&#x6027;</li>
+</ul>
+<h3 class="mume-header" id="%E7%BB%84%E4%BB%B6%E7%9A%84%E7%89%B9%E7%82%B9%E6%98%AF%E4%BB%80%E4%B9%88">&#x7EC4;&#x4EF6;&#x7684;&#x7279;&#x70B9;&#x662F;&#x4EC0;&#x4E48;&#xFF1F;</h3>
+
+<ol>
+<li>&#x6BCF;&#x4E00;&#x4E2A;&#x8868;&#x5355;&#x57DF;&#x652F;&#x6301;&#x591A;&#x4E2A;&#x89C4;&#x5219;&#x7684;&#x6821;&#x9A8C;&#xFF0C;&#x800C;&#x4E14;&#x5185;&#x7F6E;&#x4E86;&#x89C4;&#x5219;&#xFF0C;&#x5F00;&#x7BB1;&#x5373;&#x7528;</li>
+<li>&#x63D0;&#x793A;&#x4FE1;&#x606F;&#x53EF;&#x8FDB;&#x884C;&#x81EA;&#x5B9A;&#x4E49;&#x8986;&#x76D6;</li>
+<li>&#x53EF;&#x4E3A;&#x8868;&#x5355;&#x57DF;&#x6CE8;&#x518C;&#x591A;&#x4E2A;&#x81EA;&#x5B9A;&#x4E49;&#x56DE;&#x8C03;&#x9A8C;&#x8BC1;&#x51FD;&#x6570;</li>
+<li>&#x5F00;&#x7BB1;&#x5373;&#x7528;&#x7684;&#x5185;&#x7F6E;&#x9519;&#x8BEF;&#x63D0;&#x793A;&#x4FE1;&#x606F;</li>
+<li>&#x7B80;&#x5355;&#x7684;&#x6821;&#x9A8C;&#x7528;&#x6CD5;&#xFF0C;&#x4E3A;&#x7F51;&#x7AD9;&#x63D0;&#x4F9B;&#x5E38;&#x7528;&#x7684;&#x6B63;&#x5219;&#x6821;&#x9A8C;</li>
+</ol>
+<h3 class="mume-header" id="%E7%BB%84%E4%BB%B6%E7%9A%84%E4%BC%98%E5%8A%BF%E5%9C%A8%E5%93%AA%E5%84%BF">&#x7EC4;&#x4EF6;&#x7684;&#x4F18;&#x52BF;&#x5728;&#x54EA;&#x513F;&#xFF1F;</h3>
+
+<ul>
+<li>&#x91C7;&#x7528;&#x539F;&#x751F; js &#x7F16;&#x5199;&#xFF0C;&#x4F7F;&#x7528;&#x8D77;&#x6765;&#x6CA1;&#x6709;&#x5BF9;&#x6846;&#x67B6;&#x7684;&#x5B66;&#x4E60;&#x6210;&#x672C;&#xFF08;&#x65E0;&#x8BBA;&#x81EA;&#x5DF1;&#x719F;&#x6089;&#x6216;&#x8005;&#x516C;&#x53F8;&#x4F7F;&#x7528;&#x7684;&#x6846;&#x67B6;&#x662F;&#x54EA;&#x79CD;&#x90FD;&#x53EF;&#x4EE5;&#x4F7F;&#x7528;&#xFF09;&#xFF0C;&#x53EA;&#x9700;&#x8981;&#x9075;&#x5FAA;&#x7B80;&#x5355;&#x7684;&#x51E0;&#x4E2A;&#x89C4;&#x5219;&#x5C31;&#x80FD;&#x5F00;&#x7BB1;&#x5373;&#x7528;</li>
+<li>&#x7075;&#x6D3B;&#x3001;&#x6613;&#x7528;&#xFF0C;&#x652F;&#x6301;&#x591A;&#x4E2A;&#x53EF;&#x8986;&#x76D6;&#x7684;&#x6821;&#x9A8C;&#x89C4;&#x5219;</li>
+<li>&#x591A;&#x5C42;&#x6B21;&#x7684;&#x4EA4;&#x4E92;&#x903B;&#x8F91;&#xFF0C;&#x66F4;&#x597D;&#x7684;&#x5F00;&#x53D1;&#x4F53;&#x9A8C;&#xFF08;&#x5F85;&#x5B9E;&#x73B0;&#xFF09;</li>
+<li>&#x5B8C;&#x5168;&#x53EF;&#x81EA;&#x5B9A;&#x4E49;&#x7684;&#x9519;&#x8BEF;&#x4EA4;&#x4E92;&#x65B9;&#x5F0F;</li>
+<li>&#x826F;&#x597D;&#x7684;&#x5F02;&#x5E38;&#x63D0;&#x793A;</li>
+</ul>
+<h3 class="mume-header" id="%E4%BD%BF%E7%94%A8%E7%BB%84%E4%BB%B6">&#x4F7F;&#x7528;&#x7EC4;&#x4EF6;&#xFF1A;</h3>
+
+<h5 class="mume-header" id="%E4%B8%80-%E7%AE%80%E5%8D%95%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%A0%A1%E9%AA%8C">&#x4E00;&#x3001; &#x7B80;&#x5355;&#x5B57;&#x7B26;&#x4E32;&#x6821;&#x9A8C;&#xFF1A;</h5>
+
+<pre data-role="codeBlock" data-info="js" class="language-javascript"><span class="token comment">// &#x9996;&#x5148;&#x5B9E;&#x4F8B;&#x5316;&#x4E00;&#x4E2A; Validator&#xFF0C;&#x4E0D;&#x9700;&#x8981;&#x4F20;&#x5165;&#x4EFB;&#x4F55;&#x53C2;&#x6570;</span>
+<span class="token comment">// &#x7B80;&#x5355;&#x5B57;&#x7B26;&#x4E32;&#x6821;&#x9A8C;&#xFF0C;&#x53EA;&#x9700;&#x8981;&#x6307;&#x5B9A;&#x6821;&#x9A8C;&#x89C4;&#x5219;&#xFF0C;&#x5E76;&#x5C06;&#x9700;&#x8981;&#x9A8C;&#x8BC1;&#x7684;&#x5B57;&#x7B26;&#x4E32;&#x4F20;&#x5165; check() &#x51FD;&#x6570;&#x3002;</span>
+<span class="token keyword">import</span> <span class="token punctuation">{</span>Validator<span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">&apos;./validate/validator.js&apos;</span>
+<span class="token keyword">let</span> v <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Validator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+v<span class="token punctuation">.</span><span class="token function">check</span><span class="token punctuation">(</span><span class="token string">&apos;isEmail&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;999999999@&apos;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">// false</span>
+v<span class="token punctuation">.</span><span class="token function">check</span><span class="token punctuation">(</span><span class="token string">&apos;isPassword&apos;</span><span class="token punctuation">,</span><span class="token string">&apos;999999999@qq.com&apos;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>     <span class="token comment">// true</span>
+
+<span class="token comment">// &#x5E26;&#x8303;&#x56F4;&#x68C0;&#x67E5;&#x7684;&#x7B80;&#x5355;&#x7528;&#x6CD5;&#xFF1A;</span>
+<span class="token comment">// &#x63D0;&#x4F9B;&#x8303;&#x56F4;&#x68C0;&#x67E5;&#xFF0C;&#x4EC5;&#x9700;&#x8981;&#x5728;&#x89C4;&#x5219;&#x540E;&#x50CF;&#x8C03;&#x7528;&#x51FD;&#x6570;&#x4E00;&#x6837;&#x4F20;&#x5165;&#x4E0A;&#x4E0B;&#x8303;&#x56F4;&#x5373;&#x53EF;&#x3002;&#x5982;&#xFF1A;isEmail(10,20)</span>
+<span class="token keyword">let</span> v_easy <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Validator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+v_easy<span class="token punctuation">.</span><span class="token function">check</span><span class="token punctuation">(</span><span class="token string">&apos;isEmail(10,20)&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;11@qq.comfff&apos;</span><span class="token punctuation">)</span>
+</pre><h5 class="mume-header" id="%E4%BA%8C-%E8%A1%A8%E5%8D%95%E6%A0%A1%E9%AA%8C">&#x4E8C;&#x3001; &#x8868;&#x5355;&#x6821;&#x9A8C;&#xFF1A;</h5>
+
+<ul>
+<li>
+<p>&#x57FA;&#x672C;&#x4F7F;&#x7528;&#x573A;&#x666F;&#xFF1A;</p>
+<ul>
+<li>
+<p>&#x52A8;&#x6001;&#x8868;&#x5355;&#x9A8C;&#x8BC1;&#xFF0C;&#x6BCF;&#x5F53; input &#x5143;&#x7D20;&#x5931;&#x53BB;&#x7126;&#x70B9;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x4E5F;&#x53EF;&#x4EE5;&#x662F;&#x70B9;&#x51FB;&#x522B;&#x7684;&#x6309;&#x94AE;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x7EC4;&#x4EF6;&#x4F1A;&#x52A8;&#x6001;&#x5F97;&#x4E3A;&#x8BE5;&#x8868;&#x5355;&#x57DF;&#x6821;&#x9A8C;&#x8F93;&#x5165;&#x7ED3;&#x679C;&#x3002;<br>
+&#x5982;&#x679C;&#x70B9;&#x51FB;&#x7684;&#x662F; type &#x4E3A; submit &#x7684;&#x6309;&#x94AE;&#xFF0C;&#x9ED8;&#x8BA4;&#x4F1A;&#x8C03;&#x7528;&#x6574;&#x4E2A;&#x8868;&#x5355;&#x7684;&#x6821;&#x9A8C;&#x51FD;&#x6570;&#x3002;</p>
+</li>
+<li>
+<p>&#x5F53;&#x7136;&#x4E5F;&#x53EF;&#x4EE5;&#x9009;&#x62E9;&#x4E0D;&#x52A8;&#x6001;&#x9A8C;&#x8BC1;&#xFF0C;&#x867D;&#x7136;&#x7EC4;&#x4EF6;&#x4F1A;&#x9ED8;&#x8BA4;&#x7ED9;&#x6240;&#x6709;&#x6307;&#x5B9A;&#x4E86;&#x89C4;&#x5219;&#x7684;&#x5143;&#x7D20;&#x7ED1;&#x4E0A; onblur &#x4E8B;&#x4EF6;&#x7684;&#x76D1;&#x542C;&#x5668;&#xFF0C;<br>
+&#x4F46;&#x662F;&#x4F60;&#x4E5F;&#x53EF;&#x4EE5;&#x663E;&#x793A;&#x5730;&#x6307;&#x5B9A;onblur: &apos;false&apos; &#x6765;&#x963B;&#x6B62;&#x8FD9;&#x4E2A;&#x9ED8;&#x8BA4;&#x89C4;&#x5219;&#x751F;&#x6548;&#x3002;</p>
+</li>
+</ul>
+</li>
+<li>
+<p>&#x4F7F;&#x7528;&#x65B9;&#x6CD5;&#xFF1A;</p>
+</li>
+</ul>
+<ol>
+<li>&#x7F16;&#x5199;&#x597D;&#x4E00;&#x4E2A;&#x8868;&#x5355;&#xFF08;&#x53EF;&#x4EE5;&#x81EA;&#x5DF1;&#x7ED9; onsubmit &#x4E8B;&#x4EF6;&#x7ED1;&#x5B9A;&#x4E00;&#x4E2A;&#x65E0;&#x5173;&#x7684;&#x56DE;&#x8C03;&#xFF0C;&#x540C;&#x6837;&#x4F1A;&#x6267;&#x884C;&#xFF09;&#xFF0C;&#x7136;&#x540E;&#x6307;&#x5B9A;&#x63D0;&#x4EA4;&#x6309;&#x94AE;&#xFF0C;&#x8FD9;&#x4E24;&#x8005;&#x9700;&#x8981;&#x5E26;&#x4E0A; id &#x5C5E;&#x6027;&#x3002;</li>
+</ol>
+<pre data-role="codeBlock" data-info="html" class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>form</span> <span class="token attr-name">action</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">&quot;</span>pass.html<span class="token punctuation">&quot;</span></span> <span class="token attr-name">method</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">&quot;</span>post<span class="token punctuation">&quot;</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">&quot;</span>example_form<span class="token punctuation">&quot;</span></span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>form</span><span class="token punctuation">&gt;</span></span>
+</pre><pre data-role="codeBlock" data-info="html" class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>form</span> <span class="token attr-name">action</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">&quot;</span>pass.html<span class="token punctuation">&quot;</span></span> <span class="token attr-name">method</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">&quot;</span>post<span class="token punctuation">&quot;</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">&quot;</span>example_form<span class="token punctuation">&quot;</span></span> <span class="token attr-name">onsubmit</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">&quot;</span>return myfun()<span class="token punctuation">&quot;</span></span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>form</span><span class="token punctuation">&gt;</span></span>
+</pre><ol start="2">
+<li>&#x5728; js &#x4EE3;&#x7801;&#x4E2D;&#x5F15;&#x5165;&#x6821;&#x9A8C;&#x6A21;&#x5757;&#xFF0C;&#x5E76;&#x4E3A;&#x6BCF;&#x4E00;&#x4E2A;&#x9700;&#x8981;&#x9A8C;&#x8BC1;&#x7684;&#x8868;&#x5355;&#x521D;&#x59CB;&#x5316;&#x4E00;&#x4E2A;&#x6821;&#x9A8C;&#x7EC4;&#x4EF6;&#x3002;</li>
+</ol>
+<pre data-role="codeBlock" data-info="js" class="language-javascript"><span class="token comment">// &#x5B9E;&#x4F8B;&#x5316;&#xFF1A;Validator(formInfo: object, customRules: array, callback: function)</span>
+<span class="token comment">// &#x8868;&#x5355;&#x57FA;&#x672C;&#x4FE1;&#x606F;&#xFF1A; { formId: string, onlyValidate: boolean}</span>
+<span class="token comment">// &#x81EA;&#x5B9A;&#x4E49;&#x89C4;&#x5219;&#xFF1A;[{},{} ...]</span>
+<span class="token comment">// &#x8868;&#x5355;&#x56DE;&#x8C03;&#xFF1A; function(err, evt, callback) {} &#xFF08;&#x53EF;&#x9009;&#xFF09;</span>
+<span class="token keyword">import</span> <span class="token punctuation">{</span>Validator<span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">&apos;./validate/validator.js&apos;</span>
+<span class="token keyword">var</span> a <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Validator</span><span class="token punctuation">(</span><span class="token punctuation">{</span> formId<span class="token punctuation">:</span> <span class="token string">&quot;example_form&quot;</span><span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token punctuation">[</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// &#x8868;&#x5355;&#x4E2D;input&#x5143;&#x7D20;&#x7684; id &#x5B57;&#x6BB5; ( id/name &#x5E94;&#x5F53;&#x81F3;&#x5C11;&#x6709;&#x4E00;&#x4E2A;&#xFF0C;&#x4E24;&#x8005;&#x90FD;&#x6709;&#x4E5F;&#x53EF;, &#x4E3A;&#x4E86;&#x907F;&#x514D;&#x6B67;&#x4E49;&#x548C;&#x4E0D;&#x5FC5;&#x8981;&#x7684;&#x8BEF;&#x89E3;&#xFF0C;&#x6700;&#x597D;&#x53EA;&#x6307;&#x5B9A;&#x4E00;&#x4E2A;)</span>
+        <span class="token comment">// &#x6CE8;&#x610F;&#xFF01;&#x4F7F;&#x7528;name&#x7684;&#x65F6;&#x5019;&#x5E94;&#x8BE5;&#x65F6;&#x5E0C;&#x671B;&#x80FD;&#x591F;&#x6279;&#x91CF;&#x64CD;&#x4F5C;&#x4E00;&#x6279;dom&#x5143;&#x7D20;&#xFF0C;&#x8FD9;&#x4E2A;&#x65F6;&#x5019;&#x907F;&#x514D;&#x4F7F;&#x7528;id&#xFF0C;&#x4EE5;&#x514D;&#x9A8C;&#x8BC1;&#x529F;&#x80FD;&#x5931;&#x6548;</span>
+        id<span class="token punctuation">:</span> <span class="token string">&apos;email-1&apos;</span><span class="token punctuation">,</span>
+        <span class="token comment">// &#x8868;&#x5355;&#x4E2D;input&#x5143;&#x7D20;&#x7684; name &#x5B57;&#x6BB5;</span>
+        name<span class="token punctuation">:</span> <span class="token string">&apos;hello-email&apos;</span><span class="token punctuation">,</span>
+        <span class="token comment">// &#xFF08;&#x53EF;&#x9009;&#xFF09;</span>
+        msg<span class="token punctuation">:</span> <span class="token punctuation">{</span> check_phone<span class="token punctuation">:</span> <span class="token string">&apos;Please enter correct phone number.&apos;</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token comment">// &#x9A8C;&#x8BC1;&#x6761;&#x4EF6;&#xFF0C;&#x8D8A;&#x9760;&#x524D;&#x7684;&#x89C4;&#x5219;&#x8D8A;&#x4F18;&#x5148;&#xFF0C;&#x76F4;&#x5230;&#x6EE1;&#x8DB3;&#x6240;&#x6709;&#x6761;&#x4EF6;&#x624D;&#x4E0D;&#x4F1A;&#x8FD4;&#x56DE;&#x9519;&#x8BEF;</span>
+        rules<span class="token punctuation">:</span> <span class="token string">&apos;is_email|max_length(12)&apos;</span><span class="token punctuation">,</span>
+        <span class="token comment">// &#xFF08;&#x53EF;&#x9009;&#xFF09;</span>
+        onblur<span class="token punctuation">:</span> <span class="token string">&apos;true&apos;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token punctuation">{</span>
+        name<span class="token punctuation">:</span> <span class="token string">&apos;sex&apos;</span><span class="token punctuation">,</span>
+        category<span class="token punctuation">:</span> <span class="token string">&apos;sex&apos;</span><span class="token punctuation">,</span>
+        msg<span class="token punctuation">:</span><span class="token string">&quot;&#x8BF7;&#x4F60;&#x9009;&#x62E9;&#x6027;&#x522B;{{sex}}|&#x8BF7;&#x8F93;&#x5165;&#x6570;&#x5B57;&quot;</span><span class="token punctuation">,</span>
+        rules<span class="token punctuation">:</span> <span class="token string">&apos;required&apos;</span><span class="token punctuation">,</span>
+        onblur<span class="token punctuation">:</span> <span class="token string">&apos;false&apos;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span>
+</pre><ol start="3">
+<li>&#x81EA;&#x884C;&#x6CE8;&#x518C;&#x6BCF;&#x4E2A;&#x8868;&#x5355;&#x7EC4;&#x4EF6;&#x53EF;&#x80FD;&#x7528;&#x5230;&#x7684;&#x56DE;&#x8C03;&#x51FD;&#x6570;&#x548C;&#x63D0;&#x793A;&#x4FE1;&#x606F;&#x3002;</li>
+</ol>
+<pre data-role="codeBlock" data-info="js" class="language-javascript"><span class="token keyword">function</span> <span class="token function">passwordIsStrong</span><span class="token punctuation">(</span><span class="token parameter">value</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>value<span class="token punctuation">.</span>length <span class="token operator">&lt;</span> <span class="token number">10</span><span class="token punctuation">)</span> <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+v<span class="token punctuation">.</span><span class="token function">registerCallback</span><span class="token punctuation">(</span><span class="token string">&apos;check_password&apos;</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">value</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">passwordIsStrong</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setMessage</span><span class="token punctuation">(</span><span class="token string">&apos;check_password&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Please choose a stronger password using at least 111 letters.&apos;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</pre><ol start="4">
+<li>&#x521B;&#x5EFA;&#x5B9E;&#x4F8B;&#x65F6;&#x6307;&#x5B9A; onlyValidate &#x4E3A; true &#x53EF;&#x4EE5;&#x8BA9;&#x7EC4;&#x4EF6;&#x53EA;&#x505A;&#x9A8C;&#x8BC1;&#xFF0C;&#x4E0D;&#x5BF9;&#x9519;&#x8BEF;&#x8FDB;&#x884C;&#x5904;&#x7406;&#x3002;&#x4FEE;&#x6539; DEBUG &#x4E3A; false &#x4E0D;&#x8F93;&#x51FA;&#x8C03;&#x8BD5;&#x4FE1;&#x606F;</li>
+</ol>
+<pre data-role="codeBlock" data-info="js" class="language-javascript"><span class="token keyword">let</span> v <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Validator</span><span class="token punctuation">(</span><span class="token punctuation">{</span> formId<span class="token punctuation">:</span> <span class="token string">&quot;example_form&quot;</span><span class="token punctuation">,</span> submitId<span class="token punctuation">:</span> <span class="token string">&quot;newbutton-1&quot;</span><span class="token punctuation">,</span> onlyValidate<span class="token punctuation">:</span> <span class="token boolean">false</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span>
+        id<span class="token punctuation">:</span> <span class="token string">&apos;email-1&apos;</span><span class="token punctuation">,</span>
+        msg<span class="token punctuation">:</span> <span class="token punctuation">{</span>isEmail<span class="token punctuation">:</span> <span class="token string">&apos;&#x8BF7;&#x8F93;&#x5165;&#x5408;&#x6CD5;&#x7684;&#x90AE;&#x7BB1;&#x5730;&#x5740;!&apos;</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+        rules<span class="token punctuation">:</span> <span class="token string">&apos;required|isEmail(10,20)&apos;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</pre><pre data-role="codeBlock" data-info="js" class="language-javascript"><span class="token comment">// DEBUG &#x53C2;&#x6570;&#x4F4D;&#x7F6E;&#xFF1A; /#####/validator.js</span>
+<span class="token comment">// &#x8F93;&#x51FA;&#x8C03;&#x8BD5;&#x4FE1;&#x606F;</span>
+<span class="token keyword">const</span> <span class="token constant">DEBUG</span> <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+<span class="token comment">// &#x8F93;&#x51FA;&#x8C03;&#x8BD5;&#x4FE1;&#x606F;</span>
+<span class="token keyword">const</span> <span class="token constant">DEBUG</span> <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+</pre><ol start="5">
+<li>&#x5F02;&#x6B65;&#x6821;&#x9A8C;&#x8868;&#x5355;</li>
+</ol>
+<p>&#x9700;&#x8981;&#x5728;&#x521B;&#x5EFA;&#x7EC4;&#x4EF6;&#x5B9E;&#x4F8B;&#x65F6;&#xFF0C;&#x6700;&#x540E;&#x4E00;&#x4E2A;&#x53C2;&#x6570;&#x4F20;&#x5165;&#x5F02;&#x6B65;&#x8C03;&#x7528;&#xFF1A;</p>
+<pre data-role="codeBlock" data-info="js" class="language-javascript"><span class="token keyword">let</span> v <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Validator</span><span class="token punctuation">(</span><span class="token punctuation">{</span> formId<span class="token punctuation">:</span> <span class="token string">&quot;example_form&quot;</span><span class="token punctuation">,</span> submitId<span class="token punctuation">:</span> <span class="token string">&quot;newbutton-1&quot;</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span>
+        id<span class="token punctuation">:</span> <span class="token string">&apos;email-1&apos;</span><span class="token punctuation">,</span>
+        msg<span class="token punctuation">:</span> <span class="token punctuation">{</span>isEmail<span class="token punctuation">:</span> <span class="token string">&apos;&#x8BF7;&#x8F93;&#x5165;&#x5408;&#x6CD5;&#x7684;&#x90AE;&#x7BB1;&#x5730;&#x5740;!&apos;</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+        rules<span class="token punctuation">:</span> <span class="token string">&apos;required|isEmail(10,20)&apos;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">err<span class="token punctuation">,</span> evt<span class="token punctuation">,</span> callback</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token comment">// &#x5F02;&#x6B65;&#x5904;&#x7406;</span>
+    <span class="token function">callback</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">// &#x8C03;&#x7528;&#x975E;&#x5FC5;&#x8981;&#xFF0C;&#x8BE5; callback &#x529F;&#x80FD;&#x662F;&#x663E;&#x793A;&#x9519;&#x8BEF;&#x63D0;&#x793A; </span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</pre><ol start="6">
+<li>&#x5F02;&#x6B65;&#x6821;&#x9A8C;&#x8868;&#x5355;&#x57DF;</li>
+</ol>
+<pre data-role="codeBlock" data-info="js" class="language-javascript"><span class="token comment">// &#x8C03;&#x7528; registerCallback &#x65F6;&#xFF0C;&#x5F02;&#x6B65;&#x5224;&#x65AD;&#x5B8C;&#x6210;&#x540E;&#x7ED9; callback &#x4F20;&#x5224;&#x65AD;&#x7ED3;&#x679C; </span>
+v<span class="token punctuation">.</span><span class="token function">registerCallback</span><span class="token punctuation">(</span><span class="token string">&apos;check_phone&apos;</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">fieldVaule<span class="token punctuation">,</span> length<span class="token punctuation">,</span> callback<span class="token punctuation">,</span> field</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>v<span class="token punctuation">.</span><span class="token function">check</span><span class="token punctuation">(</span><span class="token string">&apos;isNumeric&apos;</span><span class="token punctuation">,</span> length<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token function">setTimeout</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+            console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">&apos;fetch data end&apos;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>fieldVaule<span class="token punctuation">.</span>length <span class="token operator">===</span> <span class="token function">parseInt</span><span class="token punctuation">(</span>length<span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token comment">// &#x8C03;&#x7528;&#x56DE;&#x8C03;&#xFF0C;&#x5904;&#x7406;&#x9519;&#x8BEF;&#x63D0;&#x793A;</span>
+                <span class="token function">callback</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                
+                <span class="token function">callback</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            
+        <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token number">2000</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">&apos;fetching data&apos;</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setMessage</span><span class="token punctuation">(</span><span class="token string">&apos;check_phone&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Please enter a correct phone number using 11 number.&apos;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</pre><ol start="6">
+<li>&#x8303;&#x56F4;&#x68C0;&#x67E5;<br>
+&#x5927;&#x90E8;&#x5206;&#x5E38;&#x7528;&#x7684;&#x6821;&#x9A8C;&#x89C4;&#x5219;&#x652F;&#x6301;&#x8303;&#x56F4;&#x68C0;&#x67E5;&#x4F20;&#x53C2;&#xFF0C;&#x4F7F;&#x7528;&#x65B9;&#x6CD5;&#x5982;&#x4E0B;&#xFF1A;</li>
+</ol>
+<pre data-role="codeBlock" data-info="js" class="language-javascript"><span class="token keyword">let</span> v <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Validator</span><span class="token punctuation">(</span><span class="token punctuation">{</span> formId<span class="token punctuation">:</span> <span class="token string">&quot;example_form&quot;</span><span class="token punctuation">,</span> submitId<span class="token punctuation">:</span> <span class="token string">&quot;newbutton-1&quot;</span><span class="token punctuation">,</span> <span class="token keyword">async</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span>
+        id<span class="token punctuation">:</span> <span class="token string">&apos;score&apos;</span><span class="token punctuation">,</span>
+        rules<span class="token punctuation">:</span> <span class="token string">&apos;required|isFloat(0,100)&apos;</span><span class="token punctuation">,</span>
+        msg<span class="token punctuation">:</span> <span class="token punctuation">{</span> isFloat<span class="token punctuation">:</span> <span class="token string">&apos;&#x6210;&#x7EE9;&#x987B;&#x586B;&#x5199;0-100&#x95F4;&#x7684; float&apos;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</pre><ul>
+<li>&#x5199;&#x6CD5;&#x89E3;&#x91CA;</li>
+</ul>
+<p>&#x6307;&#x5B9A;&#x8303;&#x56F4;&#x53EA;&#x9700;&#x8981;&#x7ED9;&#x5B9A; [&#x51FD;&#x6570;+&#x8303;&#x56F4;]&#xFF0C;&#x5982;&#x4E0A;&#x4F8B;&#x4E2D;&#x7684;&#xFF1A;isFloat(0,100)<br>
+&#x8303;&#x56F4;&#x7684;&#x5199;&#x6CD5;&#x5982;&#x4E0B;&#xFF0C;&#x5141;&#x8BB8;&#x53EA;&#x7ED9;&#x4E00;&#x4E2A;&#x8FB9;&#x754C;&#x6216;&#x8005;&#x4E0D;&#x7ED9;&#xFF0C;&#x5141;&#x8BB8;&#x4E2D;&#x95F4;&#x63D2;&#x5165;&#x7A7A;&#x683C;&#xFF1A;<br>
+(0,1)<br>
+(,1)<br>
+(0,)<br>
+(,)<br>
+( 0 , 1 )<br>
+(  0  ,  1  )</p>
+<ul>
+<li>&#x6570;&#x5B57;&#x89C4;&#x5219;&#x548C;&#x5B57;&#x7B26;&#x4E32;&#x89C4;&#x5219;&#x7684;&#x5DEE;&#x522B;</li>
+</ul>
+<p>&#x6570;&#x5B57;&#x89C4;&#x5219;&#x7684;&#x8303;&#x56F4;&#x9488;&#x5BF9;&#x6570;&#x503C;&#x5927;&#x5C0F;&#xFF0C;&#x800C;&#x5B57;&#x7B26;&#x4E32;&#x89C4;&#x5219;&#x9488;&#x5BF9;&#x7684;&#x662F;&#x5B57;&#x7B26;&#x4E32;&#x957F;&#x5EA6;</p>
+<p>&#x6570;&#x5B57;&#x89C4;&#x5219;&#x5982;&#xFF1A;isInt/isFloat/isUint &#x7B49;<br>
+&#x5B57;&#x7B26;&#x4E32;&#x89C4;&#x5219;&#x5982;&#xFF1A;isAlpha/isEmail &#x7B49;</p>
+<ul>
+<li>&#x4F18;&#x5148;&#x7EA7;</li>
+</ul>
+<p>&#x6821;&#x9A8C;&#x89C4;&#x5219;&#x672C;&#x8EAB;&#x53EF;&#x80FD;&#x5E26;&#x6709;&#x8303;&#x56F4;&#xFF0C;&#x8303;&#x56F4;&#x68C0;&#x67E5;&#x4E00;&#x822C;&#x4E0D;&#x4F1A;&#x548C;&#x89C4;&#x5219;&#x672C;&#x8EAB;&#x6709;&#x51B2;&#x7A81;&#x3002;<br>
+&#x4E00;&#x65E6;&#x53D1;&#x751F;&#x51B2;&#x7A81;&#xFF0C;&#x6821;&#x9A8C;&#x7ED3;&#x679C;&#x53D6;&#x6240;&#x6709;&#x8303;&#x56F4;&#x6821;&#x9A8C;&#x7684;&#x4EA4;&#x96C6;&#x3002;</p>
+<ol start="7">
+<li>&#x652F;&#x6301; trim &#x548C;&#x53EF;&#x914D;&#x7F6E; trim<br>
+&#x9ED8;&#x8BA4;&#x60C5;&#x51B5;&#x4E0B;&#xFF0C;&#x8868;&#x5355;&#x4E2D;&#x9664;&#x4E86; textarea &#x8FD9;&#x79CD;&#x7279;&#x6B8A;&#x7684;&#x8868;&#x5355;&#x57DF;&#xFF0C;&#x7528;&#x6237;&#x4F20;&#x5165;&#x7684;&#x5B57;&#x7B26;&#x4E32;&#x5982;&#x679C;&#x5E26;&#x6709;&#x9996;&#x5C3E;&#x7A7A;&#x683C;&#xFF0C;&#x9996;&#x5C3E;&#x7A7A;&#x683C;&#x4F1A;&#x88AB;&#x6D88;&#x9664;&#x4E4B;&#x540E;&#x518D;&#x8FDB;&#x884C;&#x5224;&#x65AD;&#x3002;</li>
+</ol>
+<p>&#x4F46;&#x662F;&#x4F60;&#x4E5F;&#x53EF;&#x4EE5;&#x81EA;&#x5DF1;&#x8FDB;&#x884C;&#x4E00;&#x5B9A;&#x7684;&#x914D;&#x7F6E;&#xFF0C;&#x53EA;&#x9700;&#x8981;&#x5728;&#x4F20;&#x5165;&#x89C4;&#x5219;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x591A;&#x6307;&#x5B9A;&#x4E00;&#x4E2A; trim &#x5C5E;&#x6027;&#x5373;&#x53EF;&#x3002;&#x5982;&#xFF1A;</p>
+<pre data-role="codeBlock" data-info="js" class="language-javascript"><span class="token punctuation">{</span>
+    id<span class="token punctuation">:</span> <span class="token string">&apos;textarea&apos;</span><span class="token punctuation">,</span>
+    rules<span class="token punctuation">:</span> <span class="token string">&apos;required|minLength(10)|maxLength(20)&apos;</span><span class="token punctuation">,</span>
+    trim<span class="token punctuation">:</span> <span class="token boolean">false</span>
+<span class="token punctuation">}</span>
+</pre><ol start="8">
+<li>&#x76EE;&#x524D;&#x652F;&#x6301;&#x7684;&#x6240;&#x6709;&#x6821;&#x9A8C;&#x89C4;&#x5219;&#x548C;&#x652F;&#x6301;&#x7684;&#x7528;&#x6CD5;&#x5982;&#x4E0B;&#xFF1A;</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">&#x89C4;&#x5219;</th>
+<th style="text-align:center">&#x8303;&#x56F4;&#x68C0;&#x67E5;</th>
+<th style="text-align:center">trim</th>
+<th style="text-align:center">&#x4F20;&#x53C2;</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">required</td>
+<td style="text-align:center">false</td>
+<td style="text-align:center">false</td>
+<td style="text-align:center">false</td>
+</tr>
+<tr>
+<td style="text-align:center">isUsername</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">false</td>
+</tr>
+<tr>
+<td style="text-align:center">isemail</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">false</td>
+</tr>
+<tr>
+<td style="text-align:center">isPassword</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">false</td>
+</tr>
+<tr>
+<td style="text-align:center">isNumeric</td>
+<td style="text-align:center">false</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">false</td>
+</tr>
+<tr>
+<td style="text-align:center">isInt</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">false</td>
+</tr>
+<tr>
+<td style="text-align:center">isINT8</td>
+<td style="text-align:center">false</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">false</td>
+</tr>
+<tr>
+<td style="text-align:center">isINT16</td>
+<td style="text-align:center">false</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">false</td>
+</tr>
+<tr>
+<td style="text-align:center">isINT32</td>
+<td style="text-align:center">false</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">false</td>
+</tr>
+<tr>
+<td style="text-align:center">isUint</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">false</td>
+</tr>
+<tr>
+<td style="text-align:center">isUINT8</td>
+<td style="text-align:center">false</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">false</td>
+</tr>
+<tr>
+<td style="text-align:center">isUINT16</td>
+<td style="text-align:center">false</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">false</td>
+</tr>
+<tr>
+<td style="text-align:center">isUINT32</td>
+<td style="text-align:center">false</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">false</td>
+</tr>
+<tr>
+<td style="text-align:center">isFloat</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">false</td>
+</tr>
+<tr>
+<td style="text-align:center">isAlpha</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">false</td>
+</tr>
+<tr>
+<td style="text-align:center">isAlphaNumeric</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">false</td>
+</tr>
+<tr>
+<td style="text-align:center">isAlphaDash</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">false</td>
+</tr>
+<tr>
+<td style="text-align:center">equal</td>
+<td style="text-align:center">false</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">true</td>
+</tr>
+<tr>
+<td style="text-align:center">default</td>
+<td style="text-align:center">false</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">true</td>
+</tr>
+<tr>
+<td style="text-align:center">minLength</td>
+<td style="text-align:center">false</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">true</td>
+</tr>
+<tr>
+<td style="text-align:center">maxLength</td>
+<td style="text-align:center">false</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">true</td>
+</tr>
+<tr>
+<td style="text-align:center">exactLength</td>
+<td style="text-align:center">false</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">true</td>
+</tr>
+</tbody>
+</table>
+<h3 class="mume-header" id="%E8%AE%A1%E5%88%92%E4%B8%AD">&#x8BA1;&#x5212;&#x4E2D;</h3>
+
+<p>validate &#x7EC4;&#x4EF6;&#x540E;&#x671F;&#x6DFB;&#x52A0;&#xFF1A;</p>
+<ul>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox"> &#x89C4;&#x8303;&#x5316;&#x6240;&#x6709;&#x63D0;&#x793A;&#x6587;&#x672C;</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox"> conditional&#xFF0C;&#x6761;&#x4EF6;&#x6821;&#x9A8C;&#xFF1A;requireIf/requireWith/requireWithout</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox"> &#x589E;&#x52A0;&#x4EA4;&#x4E92;&#x5C42;&#x7EA7;&#xFF1A;aggressive&#x3001;passive&#x3001;lazy&#x3001;eager &#x53C2;&#x8003;&#x5E93;&#x6587;&#x6863;&#xFF1A;<a href="https://logaretm.github.io/vee-validate/guide/interaction-and-ux.html#interaction-modes">veevalidate</a></li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox"> &#x51FD;&#x6570;&#x5F0F;&#x5B9A;&#x4E49;&#x63D0;&#x793A;&#x4FE1;&#x606F;</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox"> clear &#x529F;&#x80FD;&#x51FD;&#x6570;&#xFF1F;&#xFF08;reset&#xFF09;</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox"> &#x8FC1;&#x79FB;&#x5230; typescript&#xFF1F;</li>
+</ul>
+</div>
+      </div>
+      
+      
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    </body></html>

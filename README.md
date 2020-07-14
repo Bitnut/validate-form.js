@@ -64,66 +64,165 @@ v_easy.check('isEmail(10,20)', '11@qq.comfff')
 
 * 使用方法：
 
-1. 编写好一个表单（可以自己给 onsubmit 事件绑定一个无关的回调，同样会执行），然后指定提交按钮，这两者需要带上 id 属性。
+1. 编写好一个表单（默认情况下，组件接管了 onsubmit 事件，但是也可以自己给 onsubmit 事件绑定一个无关的回调，同样会执行），然后指定提交按钮，这两者需要带上 id 属性。
 ```html
 <form action="pass.html" method="post" id="example_form"></form>
 ```
 ```html
 <form action="pass.html" method="post" id="example_form" onsubmit="return myfun()"></form>
 ```
-2. 在 js 代码中引入校验模块，并为每一个需要验证的表单初始化一个校验组件。
+2. 在 js 代码中引入校验模块。
 
+* 使用方式：
+
+构造函数：Validator(formInfo, customRules, callback);
+
+* 参数解释：
+
+1. 表单基本信息： { formId: string, onlyValidate: boolean }
+
+    - formId: 指定当前 validator 实例校验的表单，为 form 标签的 id 属性。
+    - onlyValidate: (可选) console 打印开关，默认为 false。
+    
+2. 表单域校验信息数组：[{},{} ...]
+
+    数组元素：多个对象，对象包含需要校验的表单域校验信息。
+
+    对象属性：
+    - id: 指定表单域 id，是 input 标签的 id 属性。
+    - rules: 按优先级从前往后排列的校验规则组。越靠前的规则优先级越高。必须全部满足才不会返回错误信息。
+    - msg: (可选) 自定义的规则错误提示信息，用于覆盖默认提示信息。
+    - onblur: (可选) 指定表单域的校验时机，默认为 onblur 事件触发时校验。置为 false 可以让表单域在提交时校验
+    - trim: (可选) 指定是否去掉提交内容首尾空格，具体规则见下表一。
+
+
+3. 表单回调： function(err, evt, callback) {} （可选）表单提交时调用
+
+    err: 由校验模块生成的错误数组，是一个 Map 对象，全部校验成功时为空。每一个错误最多包括 4 个属性：
+        @param {Map[]} errors.key            校验错误的表单域 id
+        @param {Map[]} errors[].msg          返回的错误信息
+        @param {Map[]} errors[].element      校验错误的表单域 dom 对象
+        @param {Map[]} errors[].rule         校验出错的规则名
+        @param {Map[]} errors[].pending      是否需要等待异步处理
+    evt：浏览器提交表单事件
+    callback: 错误处理回调，需要使用内置错误处理的时候调用，不需要传参。
+     
+    目前支持的所有校验规则和支持的用法如下： 
+    
+    | 规则 | 支持范围检查 | 默认支持 trim | 需要传参 | 解释 | 例子 |
+    |:----|:----:|:----:|:----:|:----|:----|
+    | required | no| no| no| 表单域不能为空 |
+    | isUsername | yes | yes | no| 符合内置用户名规则 |
+    | isEmail | yes | yes | no| 符合内置用户名规则 |
+    | isPassword | yes | yes | no|符合内置用户名规则 |
+    | isNumeric | no | yes | no| 任意实数或是数字串|
+    | isInt | yes | yes | no| 整数 |
+    | isINT8 | no | yes | no| int8 类型整数 |
+    | isINT16 | no | yes | no| int16 类型整数 |
+    | isINT32 | no | yes | no| int32 类型整数 |
+    | isUint | yes | yes | no| uint 类型整数 |
+    | isUINT8 | no | yes | no| uint8 类型整数 |
+    | isUINT16 | no | yes | no| uint16 类型整数 |
+    | isUINT32 | no | yes | no| uint32 类型整数 |
+    | isFloat | yes | yes | no| 浮点数 |
+    | isAlpha | yes | yes | no| 英文字母串 |
+    | isAlphaNumeric | yes | yes | no| 包含英文字母和数字的字符串 |
+    | isAlphaDash | yes | yes | no| 包含英文字母、数字、下划线、短横杠的字符串 |
+    | equal | no | yes | yes| 和指定表单域值相同| equal(other_element_id)|
+    | default | no | yes | yes| 等于默认值| default(default_string)|
+    | minLength | no | yes | yes| 最小长度| minLength(6)|
+    | maxLength | no | yes | yes| 最大长度| maxLength(20)|
+    | exactLength | no | yes | yes| 指定长度| exactLength(4)|
+
+示例代码：
 ```js
-// 实例化：Validator(formInfo: object, customRules: array, callback: function)
-// 表单基本信息： { formId: string, onlyValidate: boolean}
-// 自定义规则：[{},{} ...]
-// 表单回调： function(err, evt, callback) {} （可选）
+
 import {Validator} from './validate/validator.js'
 var a = new Validator({ formId: "example_form"},[
     {
-        // 表单中input元素的 id 字段 ( id/name 应当至少有一个，两者都有也可, 为了避免歧义和不必要的误解，最好只指定一个)
-        // 注意！使用name的时候应该时希望能够批量操作一批dom元素，这个时候避免使用id，以免验证功能失效
-        id: 'email-1',
-        // 表单中input元素的 name 字段
-        name: 'hello-email',
-        // （可选）
-        msg: { check_phone: 'Please enter correct phone number.'},
-        // 验证条件，越靠前的规则越优先，直到满足所有条件才不会返回错误
-        rules: 'is_email|max_length(12)',
-        // （可选）
-        onblur: 'true'
-    },{
-        name: 'sex',
-        category: 'sex',
-        msg:"请你选择性别{{sex}}|请输入数字",
+        id: 'gender',
         rules: 'required',
-        onblur: 'false'
+    }, {
+        id: 'email-1',
+        msg: { isEmail: 'Please enter correct phone number.'},
+        rules: 'isEmail|max_length(12)',
+        trim: false
+        onblur: false
     }
 ])
 ```
 
 
 3. 自行注册每个表单组件可能用到的回调函数和提示信息。
+
+1. 注册校验回调： registerCallback(rule_name, callback);
+    - rule_name: 规则名称
+    - callback: 规则校验回调方法，接受三个参数：function(fieldVaule, callback, fieldId) {}
+        - fieldValue 用户输入
+        - callback 模块默认错误处理回调
+        - fieldId 表单域 id
+
+2. 注册校验错误提示：setMessage(rule_name, message_str);
+    - rule_name: 规则名称
+    - message_str: 错误提示信息
+
 ```js
 function passwordIsStrong(value) {
     if(value.length < 10) return false;
     return true;
 }
 
-v.registerCallback('check_password', function(value) {
+v.registerCallback('check_password', function(fieldVaule, callback, fieldId) {
     if (passwordIsStrong(value)) {
-        return true;
+        callback();
     }
-
-    return false;
+    callback('xxxxxxxxxxxxxxxxxxxxxx failed');
 }).setMessage('check_password', 'Please choose a stronger password using at least 111 letters.');
+
+或：
+
+v.registerCallback('check_password', function(fieldVaule, callback, fieldId) {
+    if (passwordIsStrong(value)) {
+        callback();
+    }
+    callback('xxxxxxxxxxxxxxxxxxxxxx failed');
+})
+v.setMessage('check_password', 'Please choose a stronger password using at least 111 letters.');
+
+```
+
+// 如果 field 不是必填项(未指定 required)且为空，默认不做任何校验
+// field 规则中带有注册的优先回调(函数名以'!'开头)可以绕开默认规则。例如：注册回调名为：'!callback_check_password'
+
+6. 异步校验表单域
+
+用法和同步校验类似
+```js
+// 调用 registerCallback 时，异步判断完成后给 callback 传判断结果
+v.registerCallback('check_phone', function(fieldVaule, callback, fieldId) {
+    const length = 10;
+    if (!v.check('isNumeric', length)) {
+        return false;
+    }
+    setTimeout(() => {
+            if (fieldVaule.length === parseInt(length, 10)) {
+                // 调用回调，处理错误提示
+                callback();
+            } else {
+                
+                callback('xxxxxxxxxxxxxxxxxx failed');
+            }
+            
+        }, 2000);
+}).setMessage('check_phone', 'Please enter a correct phone number using 11 number.');
+
 ```
 
 
-4. 创建实例时指定 onlyValidate 为 true 可以让组件只做验证，不对错误进行处理。修改 DEBUG 为 false 不输出调试信息
+4. 创建实例时指定 onlyValidate 为 true 可以让组件只做验证，而不调用默认错误处理方法。修改 DEBUG 为 false 可以不输出调试信息
 
 ```js
-let v = new Validator({ formId: "example_form", submitId: "newbutton-1", onlyValidate: false}, [
+let v = new Validator({ formId: "example_form" }, [
     {
         id: 'email-1',
         msg: {isEmail: '请输入合法的邮箱地址!'},
@@ -132,7 +231,7 @@ let v = new Validator({ formId: "example_form", submitId: "newbutton-1", onlyVal
 ]);
 ```
 ```js
-// DEBUG 参数位置： /#####/validator.js
+// DEBUG 参数位置： /validator 模块文件夹/validator.js
 // 输出调试信息
 const DEBUG = true;
 // 输出调试信息
@@ -143,7 +242,7 @@ const DEBUG = false;
 
 需要在创建组件实例时，最后一个参数传入异步调用：
 ```js
-let v = new Validator({ formId: "example_form", submitId: "newbutton-1"}, [
+let v = new Validator({ formId: "example_form" }, [
     {
         id: 'email-1',
         msg: {isEmail: '请输入合法的邮箱地址!'},
@@ -154,36 +253,10 @@ let v = new Validator({ formId: "example_form", submitId: "newbutton-1"}, [
     callback();  // 调用非必要，该 callback 功能是显示错误提示 
 });
 ```
-
-6. 异步校验表单域
-
-```js
-// 调用 registerCallback 时，异步判断完成后给 callback 传判断结果 
-v.registerCallback('check_phone', function(fieldVaule, length, callback, field) {
-    
-    if (!v.check('isNumeric', length)) {
-        return false;
-    }
-    setTimeout(() => {
-            console.log('fetch data end');
-            if (fieldVaule.length === parseInt(length, 10)) {
-                // 调用回调，处理错误提示
-                callback(true);
-            } else {
-                
-                callback(false);
-            }
-            
-        }, 2000);
-    console.log('fetching data'); 
-
-}).setMessage('check_phone', 'Please enter a correct phone number using 11 number.');
-```
-
 6. 范围检查
 大部分常用的校验规则支持范围检查传参，使用方法如下：
 ```js
-let v = new Validator({ formId: "example_form", submitId: "newbutton-1", async: true}, [
+let v = new Validator({ formId: "example_form" }, [
     {
         id: 'score',
         rules: 'required|isFloat(0,100)',
@@ -226,39 +299,13 @@ let v = new Validator({ formId: "example_form", submitId: "newbutton-1", async: 
     trim: false
 }
 ```
-8. 目前支持的所有校验规则和支持的用法如下：
- 
- | 规则 | 范围检查 | trim | 传参 |
- |:----:|:----:|:----:|:----:|
- |required | false| false| false|
- | isUsername | true | true | false|
- | isemail | true | true | false|
- | isPassword | true | true | false|
- | isNumeric | false | true | false|
- | isInt | true | true | false|
- | isINT8 | false | true | false|
- | isINT16 | false | true | false|
- | isINT32 | false | true | false|
- | isUint | true | true | false|
- | isUINT8 | false | true | false|
- | isUINT16 | false | true | false|
- | isUINT32 | false | true | false|
- | isFloat | true | true | false|
- | isAlpha | true | true | false|
- | isAlphaNumeric | true | true | false|
- | isAlphaDash | true | true | false|
- | equal | false | true | true|
- | default | false | true | true|
- | minLength | false | true | true|
- | maxLength | false | true | true|
- | exactLength | false | true | true|
- 
 
 
 ### 计划中
 
 validate 组件后期添加：
 - [ ] 规范化所有提示文本
+- [ ] 完成错误提示处理模块
 - [ ] conditional，条件校验：requireIf/requireWith/requireWithout
 - [ ] 增加交互层级：aggressive、passive、lazy、eager 参考库文档：[veevalidate](https://logaretm.github.io/vee-validate/guide/interaction-and-ux.html#interaction-modes)
 - [ ] 函数式定义提示信息
