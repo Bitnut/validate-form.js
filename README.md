@@ -92,19 +92,17 @@ v_easy.check('isEmail(10,20)', '11@qq.comfff')
     - id: 指定表单域 id，是 input 标签的 id 属性。
     - rules: 按优先级从前往后排列的校验规则组。越靠前的规则优先级越高。必须全部满足才不会返回错误信息。
     - msg: (可选) 自定义的规则错误提示信息，用于覆盖默认提示信息。
-    - onblur: (可选) 指定表单域的校验时机，默认为 onblur 事件触发时校验。置为 false 可以让表单域在提交时校验
+    - onblur: (可选) 指定表单域的校验时机，默认为 onblur 事件触发时校验。置为 false 可以让表单域在提交时校验。
     - trim: (可选) 指定是否去掉提交内容首尾空格，具体规则见下表一。
 
 
 3. 表单回调： function(err, evt, callback) {} （可选）表单提交时调用
 
-    err: 由校验模块生成的错误数组，是一个 Map 对象，全部校验成功时为空。每一个错误最多包括 4 个属性：
+    err: 由校验模块生成的错误数组，是一个 Map 对象，全部校验成功时为空。每一个错误最多包括 2 个属性：
         @param {Map[]} errors.key            校验错误的表单域 id
         @param {Map[]} errors[].msg          返回的错误信息
-        @param {Map[]} errors[].element      校验错误的表单域 dom 对象
         @param {Map[]} errors[].rule         校验出错的规则名
-        @param {Map[]} errors[].pending      是否需要等待异步处理
-    evt：浏览器提交表单事件
+    evt：浏览器提交表单事件。
     callback: 错误处理回调，需要使用内置错误处理的时候调用，不需要传参。
      
     目前支持的所有校验规则和支持的用法如下： 
@@ -153,31 +151,42 @@ var a = new Validator({ formId: "example_form"},[
 ```
 
 
-3. 自行注册每个表单组件可能用到的回调函数和提示信息。
+3. 自行注册每个表单组件可能用到的回调函数和提示信息
 
-1. 注册校验回调： registerCallback(rule_name, callback);
-    - rule_name: 规则名称
-    - callback: 规则校验回调方法，接受三个参数：function(fieldVaule, callback, fieldId) {}
+    1. 首先在表单域规则后加入注册规则：
+    
+            rules: 'required|callback_check_password'
+    在添加注册规则时，需要在规则名前添加 'callback_' 开头，以便让校验模块知道这是一个用户自行注册的规则。
+    2. 然后注册校验回调： 
+    registerCallback(rule_name, callback);
+    - rule_name: 规则名称，规则名称不需要加 'callback_'
+    - callback: 规则校验回调方法，接受三个参数：function(fieldVaule, callback, fieldId) { // ...}
         - fieldValue 用户输入
-        - callback 模块默认错误处理回调
+        - callback 模块默认错误处理回调，接受一个可选参数： function([msg]){ // ...}
+            - 当传入参数为空时，视为校验成功，否则将 msg 作为错误提示信息处理
         - fieldId 表单域 id
 
-2. 注册校验错误提示：setMessage(rule_name, message_str);
-    - rule_name: 规则名称
-    - message_str: 错误提示信息
+*NOTICE*: 
+* 不要试图用注册规则覆盖内置规则，这样做是无效的。       
+* 添加规则一定记得在规则名前加上 'callback_' 开头。
 
 ```js
+// 构造函数内，指定规则
+{
+    rules: 'required|callback_check_password'
+}
+
 function passwordIsStrong(value) {
     if(value.length < 10) return false;
     return true;
 }
-
+// 注册校验回调
 v.registerCallback('check_password', function(fieldVaule, callback, fieldId) {
     if (passwordIsStrong(value)) {
         callback();
     }
     callback('xxxxxxxxxxxxxxxxxxxxxx failed');
-}).setMessage('check_password', 'Please choose a stronger password using at least 111 letters.');
+})
 
 或：
 
@@ -187,7 +196,6 @@ v.registerCallback('check_password', function(fieldVaule, callback, fieldId) {
     }
     callback('xxxxxxxxxxxxxxxxxxxxxx failed');
 })
-v.setMessage('check_password', 'Please choose a stronger password using at least 111 letters.');
 
 ```
 
@@ -198,7 +206,6 @@ v.setMessage('check_password', 'Please choose a stronger password using at least
 
 用法和同步校验类似
 ```js
-// 调用 registerCallback 时，异步判断完成后给 callback 传判断结果
 v.registerCallback('check_phone', function(fieldVaule, callback, fieldId) {
     const length = 10;
     if (!v.check('isNumeric', length)) {
@@ -206,7 +213,6 @@ v.registerCallback('check_phone', function(fieldVaule, callback, fieldId) {
     }
     setTimeout(() => {
             if (fieldVaule.length === parseInt(length, 10)) {
-                // 调用回调，处理错误提示
                 callback();
             } else {
                 
@@ -254,7 +260,7 @@ let v = new Validator({ formId: "example_form" }, [
 });
 ```
 6. 范围检查
-大部分常用的校验规则支持范围检查传参，使用方法如下：
+常用的校验规则支持范围检查传参，使用方法如下：
 ```js
 let v = new Validator({ formId: "example_form" }, [
     {
@@ -266,7 +272,7 @@ let v = new Validator({ formId: "example_form" }, [
 ```
 * 写法解释
 
-指定范围只需要给定 [函数+范围]，如上例中的：isFloat(0,100)
+指定范围只需要给定 函数(范围)，如上例中的：isFloat(0,100)，范围包括边界值。
 范围的写法如下，允许只给一个边界或者不给，允许中间插入空格：
 (0,1)
 (,1)

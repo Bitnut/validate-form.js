@@ -43,13 +43,12 @@ function handleSingleInput (nameValue, errors) {
         ele.innerHTML = notices.success;
         ele.style.display = 'inline';
         return;
+    } else {
+        ele.innerHTML = errObject.msg;
+        ele.style.display = 'inline';
     }
     if (DEBUG) {
         console.log(errObject);
-    }
-    if (!errObject.pending) {
-        ele.innerHTML = errObject.msg;
-        ele.style.display = 'inline';
     }
 }
 

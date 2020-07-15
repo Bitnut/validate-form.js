@@ -30,7 +30,6 @@ const INIT_FAILED = -1;
  * @param {Map[]} errors[].msg          需要输出的错误信息
  * @param {Map[]} errors[].element      填写错误的 field 的 dom 对象
  * @param {Map[]} errors[].rule         出错的规则
- * @param {Map[]} errors[].pending      是否需要等待异步处理
  *
  */
 class Validator {
@@ -215,7 +214,6 @@ class Validator {
 
         this.form = document.forms[formId];
         this.handlers = {};
-        this.handlerNotice = {};
 
         for (const item of customRules) {
             this._addField(item);
@@ -339,51 +337,28 @@ class Validator {
     }
 
     // 为某个 field 注册自定义回调函数
-    registerCallback (name, handler, isAsync) {
+    registerCallback (name, handler) {
         try {
             checkCustomHandler(name, handler);
         } catch (e) {
             console.error(e);
             return false;
         }
-        if (isAsync) {
-            this.handlers[name] = {
-                isAsync: isAsync,
-                handler: handler
-            };
-        } else {
-            this.handlers[name] = handler;
-        }
-
-        // 支持链式调用
-        return this;
-    }
-
-    // 为某个自定义回调函数注册提示信息
-    setMessage (rule, message) {
-        this.handlerNotice[rule] = message;
-        return this;
+        this.handlers[name] = handler;
     }
 
     // 获取校验规则的提示信息
-    getMessage (msg, method) {
-        let res;
-        if (msg) {
-            res = msg[method] || notices[method] || this.handlerNotice[method];
-        } else {
-            res = notices[method] || this.handlerNotice[method];
-        }
+    getMessage (msgObject, method) {
+        const res = msgObject[method] || notices[method];
         if (!res && DEBUG) {
-            console.warn(`未找到指定方法: ${method} 的提示信息`);
+            console.error(`未找到指定方法: ${method} 的提示信息`);
         }
-
         return res;
     }
 
     _validateField (field) {
         const { rules, eleTag, fieldValue, msg } = field;
         let failed = false;
-        let pending = false;
         const errors = this.errors;
         let message = '';
 
@@ -418,60 +393,54 @@ class Validator {
                 if (!this._testHooks[method].apply(this, [field, param])) {
                     failed = true;
                 }
+                // 处理校验错误，写在前面的规则优先级高于后面的规则
+                if (failed) {
+                    const existingError = errors.get(eleTag);
+                    if (existingError) return;
+
+                    const errorObject = {
+                        msg: message,
+                        rule: method
+                    };
+
+                    if (!existingError) {
+                        errors.set(eleTag, errorObject);
+                    }
+                    break;
+                }
             } else if (method.substring(0, 9) === 'callback_') {
                 method = method.substring(9, method.length);
-                message = this.getMessage(msg, method);
-                if (typeof (this.handlers[method]) === 'function') {
-                    if (this.handlers[method].apply(this, [fieldValue, param, field]) === false) {
-                        failed = true;
-                    }
-                } else if (typeof (this.handlers[method]) === 'object') {
+
+                if (this.handlers[method]) {
                     failed = true;
-                    pending = true;
 
-                    const asyncMethod = this.handlers[method].handler;
-
-                    // 处理异步
-                    asyncMethod.apply(this, [fieldValue, param, function (flag) {
-                        if (flag) {
+                    const callbackFn = this.handlers[method];
+                    const defaultMsg = Symbol('checkPassed');
+                    // 处理注册回调
+                    callbackFn.apply(this, [fieldValue, function (msg = defaultMsg) {
+                        if (msg === defaultMsg) {
                             if (DEBUG) console.log('async check success!');
+                            failed = false;
                             errors.delete(eleTag);
                             handleSingleInput(eleTag, errors);
-                        } else {
+                        } else if (msg !== '') {
                             if (DEBUG) console.log('async check failed!');
-                            pending = false;
 
                             const errorObject = {
-                                msg: message,
-                                rule: method,
-                                pending: pending
+                                msg: msg,
+                                rule: method
                             };
                             errors.set(eleTag, errorObject);
                             handleSingleInput(eleTag, errors);
+                        } else {
+                            if (DEBUG) console.error('传递了空字符串!');
                         }
-                    }]);
+                    }, eleTag]);
                 } else {
                     throw ReferenceError(`试图使用一个未注册的回调函数: ${method} 进行校验`);
                 }
             } else {
                 throw ReferenceError(`试图使用一个不存在的方法: ${method} 进行校验`);
-            }
-
-            // 处理校验错误，写在前面的规则优先级高于后面的规则
-            if (failed) {
-                const existingError = errors.get(eleTag);
-                if (existingError) return;
-
-                const errorObject = {
-                    msg: message,
-                    rule: method,
-                    pending: pending
-                };
-
-                if (!existingError) {
-                    errors.set(eleTag, errorObject);
-                }
-                break;
             }
         }
     }

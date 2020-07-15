@@ -80,7 +80,7 @@
     </div>  
 </body>
 <script async type="module" >
-    const Validator = ReolinkFE.Validator;
+    import {Validator} from './validator/validator.js'
     // 简易用法
     let v_easy = new Validator();
     console.log(v_easy.check('isEmail(10,20)', '11@qq.comfff')); // true
@@ -99,7 +99,7 @@
         },
         {
             id: 'phone',
-            rules: 'required|!callback_check_phone(11)',
+            rules: 'required|!callback_check_phone',
         },
         {
             id: 'repassword-1',
@@ -141,33 +141,34 @@
         if(value.length < 10) return false;
         return true;
     }
-    v.registerCallback('check_password', function(value) {
-        if (passwordIsStrong(value)) {
-            return true;
+    v.registerCallback('check_password', function(fieldVaule, callback, fieldId) {
+        console.log(fieldVaule, callback);
+        console.log(fieldId);
+        if (passwordIsStrong(fieldVaule)) {
+            callback();
+        } else {
+            callback('>>>>>>>>>>hahahahahahha');
         }
-
-        return false;
-    }).setMessage('check_password', 'Please choose a stronger password using at least 111 letters.');
-    // setMessage('check_password', 'Please choose a stronger password using at least 111 letters.');
+    })
     
-    v.registerCallback('check_phone', function(fieldVaule, length, callback) {
-        
+    v.registerCallback('check_phone', function(fieldVaule, callback, fieldId) {
+        const length = 11;
         if (!v.check('isNumeric', length)) {
             return false;
         }
         setTimeout(() => {
                 console.log('fetch data end');
                 if (fieldVaule.length === parseInt(length, 10)) {
-                    callback(true);
+                    callback();
                 } else {
                     
-                    callback(false);
+                    callback('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
                 }
                 
             }, 2000);
         console.log('fetching data'); 
 
-    }).setMessage('check_phone', 'Please enter a correct phone number using 11 number.');
+    });
     
     // 校验后异步
     let click = document.getElementById('newbutton-2').addEventListener('click', function(){
